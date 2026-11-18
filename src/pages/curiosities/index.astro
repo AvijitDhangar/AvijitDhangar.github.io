@@ -14,21 +14,25 @@ const past = g.explorations.filter((n) => n.status === 'past');
   <div class="wrap">
     <section class="section" style="padding-top:2rem">
       <div class="section-head"><h2>Long-term interests</h2><p>Areas I keep coming back to.</p></div>
-      <div class="topics">
-        {shown.map((t) => (
-          <a class="topic" style={`--hue:${t.hue}`} href={withBase(`curiosities/${t.slug}/`)}>
-            <h3>{t.name}</h3><p>{t.blurb}</p>
-            <small>{[t.current.length && `${t.current.length} exploring`, t.writing.length && `${t.writing.length} written`].filter(Boolean).join(' · ')}</small>
-          </a>
-        ))}
-      </div>
+      {shown.length > 0 ? (
+        <div class="topics">
+          {shown.map((t) => (
+            <a class="topic" style={`--hue:${t.hue}`} href={withBase(`curiosities/${t.slug}/`)}>
+              <h3>{t.name}</h3><p>{t.blurb}</p>
+              <small>{[t.current.length && `${t.current.length} exploring`, t.writing.length && `${t.writing.length} written`].filter(Boolean).join(' · ')}</small>
+            </a>
+          ))}
+        </div>
+      ) : (
+        <p class="empty-note">No topics published yet. Publish a note from Obsidian with <code>topics: [Topic Name]</code> and it will appear here.</p>
+      )}
     </section>
-    <section class="section">
-      <div class="section-head"><h2>Current explorations</h2></div>
-      {current.length
-        ? <ul class="rows">{current.map((n) => <NoteRow item={n} />)}</ul>
-        : <ul class="rows"><li class="row t-exploration"><span class="kind">Exploration</span><div><h3><a href={withBase(`curiosities/colour-science/`)}>{fallbackCurrent.title}</a></h3><p>{fallbackCurrent.description}</p></div><span class="when"></span></li></ul>}
-    </section>
+    {current.length > 0 && (
+      <section class="section">
+        <div class="section-head"><h2>Current explorations</h2></div>
+        <ul class="rows">{current.map((n) => <NoteRow item={n} />)}</ul>
+      </section>
+    )}
     <section class="section">
       <div class="section-head"><h2>Gallery</h2><p>Photographs and visual experiments.</p></div>
       {g.photos.length

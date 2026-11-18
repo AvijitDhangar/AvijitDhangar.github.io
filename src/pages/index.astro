@@ -15,7 +15,7 @@ const portraitMtime = portraitFile ? fs.statSync('public/' + portraitFile).mtime
 const portrait = portraitFile ? `${portraitFile}?v=${Math.round(portraitMtime)}` : null;
 const cur = g.current;
 const now = cur ? { title: cur.title, url: cur.url, description: cur.excerpt, topic: cur.topics[0], threads: cur.headings.slice(0, 4).map((h) => h.text) }
-  : { ...fallbackCurrent, url: withBase(`curiosities/${slugify(fallbackCurrent.topic)}/`) };
+  : (fallbackCurrent ? { ...fallbackCurrent, url: withBase(`curiosities/${slugify(fallbackCurrent.topic)}/`) } : null);
 const recent = [...g.recent.slice(0, 4)];
 
 const places = [
@@ -128,29 +128,31 @@ const startingPoints = [
     </div>
   </section>
 
-  <section class="wrap">
-    <div class="now" id="colour-science">
-      <div class="now-content">
-        <p class="label">Currently exploring</p>
-        <h2>{now.title}</h2>
-        <p>{now.description}</p>
-        {now.threads?.length > 0 && (
-          <ul class="threads-list">
-            {now.threads.map((t) => (
-              <li><span class="thread-dot"></span><span>{t}</span></li>
-            ))}
-          </ul>
-        )}
-        <a class="btn" href={now.url}>Follow the thread</a>
+  {now && (
+    <section class="wrap">
+      <div class="now" id="currently-exploring">
+        <div class="now-content">
+          <p class="label">Currently exploring</p>
+          <h2>{now.title}</h2>
+          <p>{now.description}</p>
+          {now.threads?.length > 0 && (
+            <ul class="threads-list">
+              {now.threads.map((t) => (
+                <li><span class="thread-dot"></span><span>{t}</span></li>
+              ))}
+            </ul>
+          )}
+          <a class="btn" href={now.url}>Follow the thread</a>
+        </div>
+        <div class="now-swatches" aria-hidden="true">
+          <div class="swatch-arch arch-1" style="background:#fb7185"></div>
+          <div class="swatch-arch arch-2" style="background:#fbbf24"></div>
+          <div class="swatch-arch arch-3" style="background:#34d399"></div>
+          <div class="swatch-arch arch-4" style="background:#38bdf8"></div>
+        </div>
       </div>
-      <div class="now-swatches" aria-hidden="true">
-        <div class="swatch-arch arch-1" style="background:#fb7185"></div>
-        <div class="swatch-arch arch-2" style="background:#fbbf24"></div>
-        <div class="swatch-arch arch-3" style="background:#34d399"></div>
-        <div class="swatch-arch arch-4" style="background:#38bdf8"></div>
-      </div>
-    </div>
-  </section>
+    </section>
+  )}
 
   <section class="section wrap" id="start-here">
     <div class="section-head">

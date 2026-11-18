@@ -17,7 +17,6 @@ import { toString } from 'mdast-util-to-string';
 import GithubSlugger from 'github-slugger';
 import { parseFrontmatter } from '../../scripts/frontmatter.mjs';
 import { withBase } from './url.mjs';
-import { interests as seedInterests } from '../data/curiosities.mjs';
 import { projects, experiments } from '../data/projects.mjs';
 
 const ROOT = process.cwd();
@@ -25,6 +24,12 @@ const NOTES_DIR = path.join(ROOT, 'content/garden');
 const IMG_DIR = path.join(ROOT, 'public/garden-img');
 const IMG_EXT = /\.(png|jpe?g|gif|webp|avif|svg)$/i;
 const WRITING = ['essay', 'article', 'note', 'reflection', 'guide', 'review', 'story'];
+const HUE_PALETTE = ['#1f9d6a', '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#06b6d4', '#6366f1', '#d946ef', '#f97316'];
+function getHue(name) {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  return HUE_PALETTE[Math.abs(hash) % HUE_PALETTE.length];
+}
 
 export const slugify = (s) =>
   String(s).normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[’'`]/g, '')
@@ -175,11 +180,16 @@ function build() {
   }
 
   // ---- topics ---------------------------------------------------------------------
-  const known = new Map(seedInterests.map((i) => [slugify(i.name), i]));
-  const canon = (t) => { const s = slugify(t); return known.get(s)?.name || String(t).trim(); };
+  const canonMap = new Map();
+  for (const n of notes) {
+    for (const t of n.topics) {
+      const s = slugify(t);
+      if (!canonMap.has(s)) canonMap.set(s, String(t).trim());
+    }
+  }
+  const canon = (t) => canonMap.get(slugify(t)) || String(t).trim();
   for (const n of notes) {
     n.topics = [...new Set(n.topics.map(canon))];
-    for (const t of n.topics) if (!known.has(slugify(t))) warnings.push(`Unknown topic "${t}" in "${n.id}" (add it to src/data/curiosities.mjs or fix the spelling)`);
     if (n.kind === 'exploration' && !n.topics.length) n.topics = ['Other'];
     n.topicSlugs = n.topics.map(slugify);
     n.url = n.kind === 'interest' ? withBase(`curiosities/${slugify(n.topics[0] || n.title)}/`)
@@ -255,6 +265,13 @@ function build() {
         if (last < node.value.length) out.push({ type: 'text', value: node.value.slice(last) });
         parent.children.splice(index, 1, ...out);
         return index + out.length;
+      });
+      // standard markdown images: ![alt](image.png)
+      visit(tree, 'image', (img) => {
+        if (img.url && !img.url.startsWith('http://') && !img.url.startsWith('https://') && !img.url.startsWith('/') && !img.url.startsWith('data:')) {
+          const resolved = findImage(img.url);
+          if (resolved) img.url = resolved;
+        }
       });
       // headings, excerpt, plain text
       const slugger = new GithubSlugger();
@@ -355,11 +372,19 @@ function build() {
   const interestNotes = notes.filter((n) => n.kind === 'interest');
 
   const topicMap = new Map();
-  const ensure = (name, extra = {}) => { const s = slugify(name); if (!topicMap.has(s)) topicMap.set(s, { slug: s, name, hue: '#1f9d6a', blurb: '', note: null, ...extra }); return topicMap.get(s); };
-  seedInterests.forEach((i) => ensure(i.name, i));
+  const ensure = (name, extra = {}) => {
+    const s = slugify(name);
+    if (!topicMap.has(s)) topicMap.set(s, { slug: s, name: canon(name), hue: getHue(name), blurb: '', note: null, ...extra });
+    return topicMap.get(s);
+  };
   for (const n of notes) n.topics.forEach((t) => ensure(t));
+  for (const n of interestNotes) {
+    const name = n.props.topic || n.title;
+    if (name) ensure(name);
+  }
   for (const t of topicMap.values()) {
-    t.note = interestNotes.find((n) => n.topicSlugs.includes(t.slug)) || null;
+    t.note = interestNotes.find((n) => n.topicSlugs.includes(t.slug) || slugify(n.title) === t.slug) || null;
+    if (t.note?.props?.hue) t.hue = t.note.props.hue;
     if (t.note?.description) t.blurb = t.note.description;
     t.explorations = explorations.filter((n) => n.topicSlugs.includes(t.slug));
     t.current = t.explorations.filter((n) => n.status !== 'past');
@@ -367,8 +392,13 @@ function build() {
     t.writing = libraryItems.filter((n) => n.topics.map(slugify).includes(t.slug));
     t.projects = projects.filter((p) => (p.topics || []).map(slugify).includes(t.slug));
     t.experiments = experiments.filter((p) => (p.topics || []).map(slugify).includes(t.slug));
+    if (!t.blurb) {
+      const firstPiece = t.writing[0] || t.explorations[0];
+      t.blurb = firstPiece?.excerpt ? firstPiece.excerpt : `Writing and thoughts on ${t.name}.`;
+    }
   }
-  const topics = [...topicMap.values()];
+  // Only topics with actual published content will have pages and cards
+  const topics = [...topicMap.values()].filter((t) => t.slug !== 'other' && (t.note || t.explorations.length || t.writing.length || t.projects.length || t.experiments.length));
 
   // photos dropped into public/gallery
   const galleryDir = path.join(ROOT, 'public/gallery');
