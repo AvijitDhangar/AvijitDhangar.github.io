@@ -6,12 +6,11 @@ import { withBase } from '../../../lib/url.mjs';
 export function getStaticPaths() { return getGarden().topics.map((t) => ({ params: { topic: t.slug }, props: { t } })); }
 const { t } = Astro.props;
 ---
-<Base title={t.name} description={t.blurb} place="curiosities">
+<Base title={t.name} place="curiosities">
   <header class="topic-head" style={`--hue:${t.hue}`}>
     <div class="wrap">
       <a class="back" href={withBase('curiosities/')}>← Curiosities</a>
       <h1>{t.name}</h1>
-      {t.blurb && <p style="font-size:1.2rem;color:var(--ink-soft);max-width:55ch;margin:0.5rem 0 0">{t.blurb}</p>}
     </div>
   </header>
   <div class="wrap">

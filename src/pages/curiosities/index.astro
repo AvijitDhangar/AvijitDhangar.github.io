@@ -18,7 +18,7 @@ const past = g.explorations.filter((n) => n.status === 'past');
         <div class="topics">
           {shown.map((t) => (
             <a class="topic" style={`--hue:${t.hue}`} href={withBase(`curiosities/${t.slug}/`)}>
-              <h3>{t.name}</h3><p>{t.blurb}</p>
+              <h3>{t.name}</h3>
               <small>{[t.current.length && `${t.current.length} exploring`, t.writing.length && `${t.writing.length} written`].filter(Boolean).join(' · ')}</small>
             </a>
           ))}
@@ -33,12 +33,12 @@ const past = g.explorations.filter((n) => n.status === 'past');
         <ul class="rows">{current.map((n) => <NoteRow item={n} />)}</ul>
       </section>
     )}
-    <SimklShowcase />
     {past.length > 0 && (
       <section class="section past">
         <div class="section-head"><h2>Past explorations</h2><p>Finished with, but never deleted.</p></div>
         <ul class="rows">{past.map((n) => <NoteRow item={n} />)}</ul>
       </section>
     )}
+    <SimklShowcase />
   </div>
 </Base>

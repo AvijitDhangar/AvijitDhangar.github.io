@@ -388,7 +388,7 @@ function build() {
   const topicMap = new Map();
   const ensure = (name, extra = {}) => {
     const s = slugify(name);
-    if (!topicMap.has(s)) topicMap.set(s, { slug: s, name: canon(name), hue: getHue(name), blurb: '', note: null, ...extra });
+    if (!topicMap.has(s)) topicMap.set(s, { slug: s, name: canon(name), hue: getHue(name), note: null, ...extra });
     return topicMap.get(s);
   };
   for (const n of notes) n.topics.forEach((t) => ensure(t));
@@ -401,7 +401,6 @@ function build() {
     if (t.note) {
       if (t.note.props.hue) t.hue = t.note.props.hue;
       if (t.note.props.topic || t.note.title) t.name = t.note.props.topic || t.note.title;
-      if (t.note.description) t.blurb = t.note.description;
     }
     t.explorations = explorations.filter((n) => n.topicSlugs.includes(t.slug));
     t.current = t.explorations.filter((n) => n.status !== 'past');

@@ -76,8 +76,8 @@ h1 { font-size: clamp(2.3rem, 5.5vw, 4.2rem); font-weight: 800; }
 h2 { font-size: clamp(1.6rem, 3.2vw, 2.3rem); }
 h3 { font-size: 1.3rem; }
 p { margin: 0 0 1em; }
-.wrap { width: min(1280px, 100% - 2.2rem); margin-inline: auto; }
-.narrow { width: min(840px, 100% - 2.2rem); margin-inline: auto; }
+.wrap { width: min(1360px, 100% - 1.8rem); margin-inline: auto; }
+.narrow { width: min(1040px, 100% - 1.8rem); margin-inline: auto; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .skip { position: absolute; left: -999px; top: 0; background: var(--ink); color: var(--paper); padding: 0.6rem 1rem; z-index: 100; }
 .skip:focus { left: 0.5rem; top: 0.5rem; }
@@ -750,17 +750,22 @@ button.chip[aria-pressed='true'] { background: var(--hue); color: #fff; border-c
 
 /* article */
 .article-head { padding: 3rem 0 1.5rem; }
-.article-head .meta { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: center; color: var(--ink-soft); font-size: 0.95rem; margin-bottom: 1rem; }
-.article-head h1 { font-size: clamp(2rem, 4.6vw, 3.2rem); margin-bottom: 0.2em; }
-.article-head .sub { font-size: 1.3rem; color: var(--ink-soft); margin: 0; }
+.article-head .meta { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: center; color: var(--ink-soft); font-size: 1.05rem; margin-bottom: 1rem; }
+.article-head h1 { font-size: clamp(2.5rem, 5vw, 3.8rem); margin-bottom: 0.2em; line-height: 1.15; }
+.article-head .sub { font-size: 1.45rem; color: var(--ink-soft); margin: 0; }
 .back { font-size: 0.95rem; color: var(--ink-soft); text-decoration: none; display: inline-block; margin-bottom: 1.2rem; }
 .back:hover { color: var(--accent); }
 .toc { margin: 0 0 2rem; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); padding: 0.2rem 1.1rem; font-size: 0.95rem; }
 .toc summary { cursor: pointer; font-weight: 700; padding: 0.7rem 0; }
 .toc ol { margin: 0 0 0.8rem; padding-left: 1.2rem; } .toc li.d3 { margin-left: 1rem; list-style: circle; }
-.prose { font-family: var(--reading); font-size: 1.1875rem; line-height: 1.75; overflow-wrap: break-word; }
+.prose { font-family: var(--reading); font-size: clamp(1.3rem, 1.2rem + 0.35vw, 1.45rem); line-height: 1.82; letter-spacing: -0.003em; overflow-wrap: break-word; }
+.prose p { margin: 0 0 1.45em; }
+.prose ul, .prose ol { margin: 0 0 1.45em; padding-left: 1.8rem; }
+.prose li { margin-bottom: 0.5em; line-height: 1.75; }
 .prose h2, .prose h3, .prose h4 { font-family: var(--display); margin: 2em 0 0.6em; }
-.prose h1 { font-size: 2.2rem; } .prose h2 { font-size: 1.75rem; } .prose h3 { font-size: 1.35rem; }
+.prose h1 { font-size: clamp(2.4rem, 4vw, 3.1rem); line-height: 1.2; }
+.prose h2 { font-size: clamp(1.85rem, 2.8vw, 2.3rem); line-height: 1.28; }
+.prose h3 { font-size: clamp(1.45rem, 2vw, 1.75rem); line-height: 1.35; }
 .prose img { height: auto; border-radius: 12px; display: block; margin: 1.5rem auto; }
 .prose a { color: var(--accent); font-weight: 500; text-decoration-thickness: 1.5px; }
 .prose a.wikilink { text-decoration-style: dotted; }
@@ -1115,10 +1120,10 @@ body[data-place='home'] .site-footer { margin-top: 0; }
 /* Book Reader Layout & Chapter Index Sidebar */
 .book-reader-layout {
   display: grid;
-  grid-template-columns: 290px minmax(0, 1fr);
-  gap: 3rem;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 2.2rem;
   align-items: start;
-  margin-top: 2rem;
+  margin-top: 1.5rem;
 }
 .chapter-sidebar {
   position: sticky;
@@ -1226,7 +1231,7 @@ body[data-place='home'] .site-footer { margin-top: 0; }
   min-width: 0;
 }
 .chapter-article {
-  max-width: 820px;
+  max-width: min(1040px, 100%);
 }
 .chapter-top-bar {
   display: flex;
@@ -1237,7 +1242,7 @@ body[data-place='home'] .site-footer { margin-top: 0; }
   margin-bottom: 1.25rem;
 }
 .chapter-top-meta {
-  font-size: 0.82rem;
+  font-size: 0.95rem;
   font-weight: 700;
   color: #b45309;
   text-transform: uppercase;
@@ -1247,14 +1252,14 @@ body[data-place='home'] .site-footer { margin-top: 0; }
   color: #fbbf24;
 }
 .chapter-heading {
-  font-size: clamp(2.2rem, 4vw, 3.2rem);
+  font-size: clamp(2.6rem, 4.5vw, 3.6rem);
   font-weight: 800;
   line-height: 1.15;
   margin-bottom: 0.5rem;
   color: var(--ink);
 }
 .chapter-sub-heading {
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   font-weight: 500;
   color: var(--ink-soft);
   margin-bottom: 1.6rem;
