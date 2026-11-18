@@ -1,0 +1,246 @@
+---
+import { getSimklData, formatWatchedDate } from '../lib/simkl.mjs';
+
+const simkl = await getSimklData();
+const { recentlyWatched, favorites, isLive, hasCredentials, profileUrl } = simkl;
+---
+
+<div class="simkl-container">
+  <!-- 1. Recently Watched Section -->
+  <section class="section" id="recently-watched">
+    <div class="section-head">
+      <div>
+        <div class="simkl-heading-wrap">
+          <h2>Recently Watched</h2>
+          {isLive ? (
+            <span class="simkl-live-pill" title="Connected to live Simkl feed">
+              <span class="live-dot"></span> Live Simkl
+            </span>
+          ) : (
+            <span class="simkl-sync-pill">Curated List</span>
+          )}
+        </div>
+        <p>Movies, series, and anime logged from my watchlist.</p>
+      </div>
+      <a class="link-arrow" href={profileUrl} target="_blank" rel="noopener noreferrer">
+        Full Simkl Profile ↗
+      </a>
+    </div>
+
+    {recentlyWatched.length > 0 ? (
+      <div class="simkl-grid">
+        {recentlyWatched.map((item) => (
+          <a class="simkl-card" href={item.url} target="_blank" rel="noopener noreferrer">
+            <div class="simkl-poster-wrap">
+              {item.poster ? (
+                <img
+                  src={item.poster}
+                  alt={`${item.title} Poster`}
+                  class="simkl-poster"
+                  loading="lazy"
+                />
+              ) : (
+                <div class="simkl-poster-fallback">
+                  <span>{item.title}</span>
+                </div>
+              )}
+              <div class="simkl-badges">
+                <span class={`simkl-badge cat-${item.category}`}>
+                  {item.categoryLabel}
+                </span>
+                {item.watchedAt && (
+                  <span class="simkl-badge time">
+                    {formatWatchedDate(item.watchedAt)}
+                  </span>
+                )}
+              </div>
+            </div>
+            <div class="simkl-info">
+              <h4 class="simkl-title" title={item.title}>{item.title}</h4>
+              <p class="simkl-meta">{item.year || item.categoryLabel}</p>
+            </div>
+          </a>
+        ))}
+      </div>
+    ) : (
+      <p class="empty-note">No recently watched items found.</p>
+    )}
+  </section>
+
+  <!-- 2. All-Time Favorites Section (10/10 Ratings) -->
+  <section class="section" id="all-time-favorites">
+    <div class="section-head">
+      <div>
+        <div class="simkl-heading-wrap">
+          <h2>All-Time Favorites</h2>
+          <span class="simkl-score-badge">★ 10/10 Rated</span>
+        </div>
+        <p>Stories, films, and worlds that left an indelible mark.</p>
+      </div>
+      <a class="link-arrow" href={profileUrl} target="_blank" rel="noopener noreferrer">
+        All Ratings ↗
+      </a>
+    </div>
+
+    {favorites.length > 0 ? (
+      <div class="simkl-grid">
+        {favorites.map((item) => (
+          <a class="simkl-card" href={item.url} target="_blank" rel="noopener noreferrer">
+            <div class="simkl-poster-wrap">
+              {item.poster ? (
+                <img
+                  src={item.poster}
+                  alt={`${item.title} Poster`}
+                  class="simkl-poster"
+                  loading="lazy"
+                />
+              ) : (
+                <div class="simkl-poster-fallback">
+                  <span>{item.title}</span>
+                </div>
+              )}
+              <div class="simkl-badges">
+                <span class={`simkl-badge cat-${item.category}`}>
+                  {item.categoryLabel}
+                </span>
+                <span class="simkl-badge rating-ten">
+                  ★ 10
+                </span>
+              </div>
+            </div>
+            <div class="simkl-info">
+              <h4 class="simkl-title" title={item.title}>{item.title}</h4>
+              <p class="simkl-meta">{item.year || item.categoryLabel}</p>
+            </div>
+          </a>
+        ))}
+      </div>
+    ) : (
+      <p class="empty-note">No 10/10 ratings logged yet.</p>
+    )}
+  </section>
+
+  {!hasCredentials && (
+    <div class="simkl-setup-hint" id="simkl-hint-box" style="display:none">
+      <div class="hint-icon">💡</div>
+      <div class="hint-text">
+        <strong>Connect Your Live Simkl Account:</strong>
+        <p style="margin:0.25rem 0 0.8rem; color:var(--ink-soft)">
+          Authorize securely in your browser using Simkl OAuth with PKCE (S256). No client secret needed.
+        </p>
+        <div style="display:flex; gap:0.6rem; flex-wrap:wrap; align-items:center;">
+          <a href="/auth/simkl" class="btn btn-sm">Authorize with Simkl (PKCE) →</a>
+          <span style="font-size:0.8rem; color:var(--ink-soft)">Or set <code>SIMKL_CLIENT_ID</code> & <code>SIMKL_USER_TOKEN</code> in GitHub Secrets for build-time sync.</span>
+        </div>
+      </div>
+    </div>
+  )}
+</div>
+
+<script>
+  // Client-side live sync if user authorized via PKCE in browser
+  async function checkClientAuth() {
+    const token = localStorage.getItem('simkl_access_token');
+    const clientId = localStorage.getItem('simkl_client_id');
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const hintBox = document.getElementById('simkl-hint-box');
+
+    // Show setup helper only to the owner on local development if not yet connected
+    if (isLocal && !token && hintBox) {
+      hintBox.style.display = 'flex';
+    }
+
+    if (!token || !clientId) return;
+
+    // Update status pills to show active OAuth connection
+    document.querySelectorAll('.simkl-sync-pill').forEach((pill) => {
+      pill.className = 'simkl-live-pill';
+      pill.innerHTML = '<span class="live-dot"></span> Live Simkl';
+      pill.setAttribute('title', 'Connected via browser PKCE session');
+    });
+
+    if (hintBox) {
+      hintBox.innerHTML = `
+        <div class="hint-icon">✓</div>
+        <div class="hint-text" style="display:flex; justify-content:space-between; align-items:center; width:100%; flex-wrap:wrap; gap:0.5rem">
+          <span><strong>Simkl Account Connected:</strong> Live data synced directly in your browser.</span>
+          <button type="button" id="simkl-signout-btn" class="btn btn-sm" style="background:transparent; border:1px solid var(--line); color:var(--ink)">Disconnect</button>
+        </div>
+      `;
+      document.getElementById('simkl-signout-btn')?.addEventListener('click', () => {
+        localStorage.removeItem('simkl_access_token');
+        localStorage.removeItem('simkl_refresh_token');
+        window.location.reload();
+      });
+    }
+
+    try {
+      const res = await fetch('https://api.simkl.com/sync/all-items?extended=full', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'simkl-api-key': clientId,
+        },
+      });
+
+      if (!res.ok) return;
+
+      const data = await res.json();
+      const normalize = (raw, cat) => {
+        const meta = raw.movie || raw.show || raw.shows || raw.anime || raw;
+        const title = meta.title || raw.title || 'Untitled';
+        const year = meta.year || raw.year || '';
+        const poster = meta.poster || raw.poster;
+        const rating = raw.user_rating != null ? Number(raw.user_rating) : null;
+        const watchedAt = raw.last_watched_at || raw.watched_at || null;
+        const ids = meta.ids || raw.ids || {};
+        const slug = ids.slug || ids.simkl || '';
+        const url = slug ? `https://simkl.com/${cat === 'movie' ? 'movies' : cat === 'show' ? 'tv' : 'anime'}/${slug}` : 'https://simkl.com/8304955/';
+        const posterUrl = poster ? (poster.startsWith('http') ? poster : `https://wsrv.nl/?url=https://simkl.in/posters/${poster}_m.webp&w=300&fit=cover`) : null;
+        return { title, year, poster: posterUrl, rating, watchedAt, category: cat, categoryLabel: cat === 'movie' ? 'Movie' : cat === 'show' ? 'Show' : 'Anime', url };
+      };
+
+      const movies = Array.isArray(data.movies) ? data.movies.map((m) => normalize(m, 'movie')) : [];
+      const shows = Array.isArray(data.shows) ? data.shows.map((s) => normalize(s, 'show')) : [];
+      const anime = Array.isArray(data.anime) ? data.anime.map((a) => normalize(a, 'anime')) : [];
+      const all = [...movies, ...shows, ...anime];
+
+      const recent = all
+        .filter((x) => Boolean(x.watchedAt))
+        .sort((a, b) => new Date(b.watchedAt).getTime() - new Date(a.watchedAt).getTime())
+        .slice(0, 10);
+
+      const faves = all
+        .filter((x) => x.rating === 10)
+        .slice(0, 12);
+
+      const renderGrid = (container, items, isFavorite = false) => {
+        if (!container || !items.length) return;
+        container.innerHTML = items.map((item) => `
+          <a class="simkl-card" href="${item.url}" target="_blank" rel="noopener noreferrer">
+            <div class="simkl-poster-wrap">
+              ${item.poster ? `<img src="${item.poster}" alt="${item.title}" class="simkl-poster" loading="lazy" />` : `<div class="simkl-poster-fallback"><span>${item.title}</span></div>`}
+              <div class="simkl-badges">
+                <span class="simkl-badge cat-${item.category}">${item.categoryLabel}</span>
+                ${isFavorite ? `<span class="simkl-badge rating-ten">★ 10</span>` : ''}
+              </div>
+            </div>
+            <div class="simkl-info">
+              <h4 class="simkl-title" title="${item.title}">${item.title}</h4>
+              <p class="simkl-meta">${item.year || item.categoryLabel}</p>
+            </div>
+          </a>
+        `).join('');
+      };
+
+      const recentGrid = document.querySelector('#recently-watched .simkl-grid');
+      const favesGrid = document.querySelector('#all-time-favorites .simkl-grid');
+
+      if (recent.length && recentGrid) renderGrid(recentGrid, recent, false);
+      if (faves.length && favesGrid) renderGrid(favesGrid, faves, true);
+    } catch (e) {
+      console.warn('Simkl browser sync error:', e);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', checkClientAuth);
+</script>

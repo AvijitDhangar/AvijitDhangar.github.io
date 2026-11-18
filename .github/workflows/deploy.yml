@@ -67,6 +67,8 @@ jobs:
       - name: Sync notes and build
         env:
           BLOG_TOKEN: ${{ secrets.BLOG_READ_TOKEN }}
+          SIMKL_CLIENT_ID: ${{ secrets.SIMKL_CLIENT_ID }}
+          SIMKL_USER_TOKEN: ${{ secrets.SIMKL_USER_TOKEN }}
         run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:

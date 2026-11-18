@@ -1,8 +1,8 @@
 ---
 import Base from '../../layouts/Base.astro';
 import NoteRow from '../../components/NoteRow.astro';
+import SimklShowcase from '../../components/SimklShowcase.astro';
 import { getGarden } from '../../lib/garden.mjs';
-import { fallbackCurrent } from '../../data/curiosities.mjs';
 import { withBase } from '../../lib/url.mjs';
 const g = getGarden();
 const shown = g.topics.filter((t) => t.slug !== 'other');
@@ -33,12 +33,7 @@ const past = g.explorations.filter((n) => n.status === 'past');
         <ul class="rows">{current.map((n) => <NoteRow item={n} />)}</ul>
       </section>
     )}
-    <section class="section">
-      <div class="section-head"><h2>Gallery</h2><p>Photographs and visual experiments.</p></div>
-      {g.photos.length
-        ? <div class="gallery">{g.photos.map((p) => <figure><img src={p.src} alt={p.caption} loading="lazy" /><figcaption>{p.caption}</figcaption></figure>)}</div>
-        : <p class="empty-note">Add images to <code>public/gallery/</code> and they appear here automatically.</p>}
-    </section>
+    <SimklShowcase />
     {past.length > 0 && (
       <section class="section past">
         <div class="section-head"><h2>Past explorations</h2><p>Finished with, but never deleted.</p></div>
