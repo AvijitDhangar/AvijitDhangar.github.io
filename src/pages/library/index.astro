@@ -36,7 +36,7 @@ const featuredCover = featured?.cover || (featured?.slug === 'triggered-lives' ?
     )}
     <section class="filters" aria-label="Filter writing">
       <input type="search" id="q" placeholder="Search the archive" aria-label="Search the archive" />
-      <div class="chips" id="type-chips">{types.map((t) => <button class="chip" type="button" aria-pressed="false" data-type={t}>{t === 'series' ? 'Stories' : cap(t) + 's'}</button>)}</div>
+      <div class="chips" id="type-chips">{types.map((t) => <button class="chip" type="button" aria-pressed="false" data-type={t}>{t === 'series' ? 'Stories' : t === 'resource' || t === 'resources' ? 'Resources' : t === 'guide' ? 'Guides' : cap(t) + 's'}</button>)}</div>
       {topics.length > 0 && <div class="chips" id="topic-chips">{topics.map((t) => <button class="chip" type="button" aria-pressed="false" data-topic={slugify(t)}>{t}</button>)}</div>}
     </section>
     {items.length ? <ul class="rows" id="archive">{items.map((item) => <NoteRow item={item} filter />)}</ul> : <p class="empty-note">Nothing published yet. Publish a note from Obsidian and it will appear here.</p>}

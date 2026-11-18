@@ -700,7 +700,7 @@ p { margin: 0 0 1em; }
   .row { grid-template-columns: 1fr; gap: 0.35rem; padding: 1.1rem 0; }
   .row .when { order: 3; font-size: 0.78rem; }
 }
-.t-essay, .t-article { --dot: var(--c-library); } .t-note, .t-reflection { --dot: var(--leaf); } .t-guide { --dot: var(--c-workshop); } .t-story, .t-series { --dot: var(--c-curiosities); } .t-exploration { --dot: var(--lilac); } .t-review { --dot: var(--sun); }
+.t-essay, .t-article { --dot: var(--c-library); } .t-note, .t-reflection { --dot: var(--leaf); } .t-guide { --dot: var(--c-workshop); } .t-resource, .t-resources { --dot: #0f8b8d; } .t-story, .t-series { --dot: var(--c-curiosities); } .t-exploration { --dot: var(--lilac); } .t-review { --dot: var(--sun); }
 
 .chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
 .chip { --hue: var(--accent); display: inline-flex; align-items: center; padding: 0.18rem 0.7rem; border-radius: 999px; background: color-mix(in srgb, var(--hue) 15%, transparent); color: var(--ink); font-size: 0.86rem; font-weight: 600; text-decoration: none; border: 1px solid color-mix(in srgb, var(--hue) 35%, transparent); font-family: var(--display); cursor: pointer; }

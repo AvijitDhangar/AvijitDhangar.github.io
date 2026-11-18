@@ -23,7 +23,7 @@ const ROOT = process.cwd();
 const NOTES_DIR = path.join(ROOT, 'content/garden');
 const IMG_DIR = path.join(ROOT, 'public/garden-img');
 const IMG_EXT = /\.(png|jpe?g|gif|webp|avif|svg)$/i;
-const WRITING = ['essay', 'article', 'note', 'reflection', 'guide', 'review', 'story'];
+const WRITING = ['essay', 'article', 'note', 'reflection', 'guide', 'review', 'story', 'resource', 'resources'];
 const HUE_PALETTE = ['#1f9d6a', '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#06b6d4', '#6366f1', '#d946ef', '#f97316'];
 function getHue(name) {
   let hash = 0;
@@ -133,9 +133,20 @@ function build() {
     const parent = parts.length > 1 ? parts[parts.length - 2] : '';
     const tags = asArray(data.tags).concat(asArray(props.tags));
     const inStory = /(^|\/)story(\/|$)/i.test(id);
+    const inCuriosity = /(^|\/)curiosit(y|ies)(\/|$)/i.test(id);
+    const inGuides = /(^|\/)guides?(\/|$)/i.test(id);
+    const inResources = /(^|\/)resources?(\/|$)/i.test(id);
 
     let type = String(props.type || '').toLowerCase();
-    if (!type) type = inStory ? 'story' : /(^|\/)articles?(\/|$)/i.test(id) ? 'article' : 'note';
+    if (type === 'interest' || type === 'topic' || type === 'curiosity') type = 'topic';
+    if (!type) {
+      if (inStory) type = 'story';
+      else if (inCuriosity) type = 'topic';
+      else if (inGuides) type = 'guide';
+      else if (inResources) type = 'resource';
+      else if (/(^|\/)articles?(\/|$)/i.test(id)) type = 'article';
+      else type = 'note';
+    }
 
     let series = props.series ? String(props.series) : '';
     if (!series && inStory && parent && !/^story$/i.test(parent) && !/^blog$/i.test(parent)) series = parent;
@@ -149,9 +160,11 @@ function build() {
     const m = meta[id + '.md'] || {};
     const date = parseDateTag(props, tags, body, m.added);
 
+    const noteTopics = asArray(props.topics ?? props.topic ?? (type === 'topic' ? title : null));
+
     notes.push({
       id, title, body, props, tags, type, series, order,
-      topics: asArray(props.topics ?? props.topic),
+      topics: noteTopics,
       status: String(props.status || '').toLowerCase(),
       featured: asBool(props.featured),
       description: props.description ? String(props.description) : '',
@@ -168,15 +181,16 @@ function build() {
   // ---- slugs and URLs -----------------------------------------------------------
   const used = new Set();
   for (const n of notes) {
-    let base = slugify(n.customSlug ? String(n.customSlug).split('/').filter(Boolean).pop() : (n.type === 'interest' ? (n.topics[0] || n.title) : n.title));
+    const isTopic = n.type === 'topic' || n.type === 'interest';
+    let base = slugify(n.customSlug ? String(n.customSlug).split('/').filter(Boolean).pop() : (isTopic ? (n.topics[0] || n.title) : n.title));
     if (!base) base = 'note';
-    const scope = n.type === 'interest' ? 'i:' : n.type === 'exploration' ? 'e:' : 'w:';
+    const scope = isTopic ? 'i:' : n.type === 'exploration' ? 'e:' : 'w:';
     let slug = base, k = 2;
-    if (n.series && n.type !== 'interest' && n.type !== 'exploration') slug = `${slugify(n.series)}/${base}`;
+    if (n.series && !isTopic && n.type !== 'exploration') slug = `${slugify(n.series)}/${base}`;
     while (used.has(scope + slug)) slug = `${base}-${k++}`;
     used.add(scope + slug);
     n.slug = slug;
-    n.kind = n.type === 'interest' ? 'interest' : n.type === 'exploration' ? 'exploration' : 'writing';
+    n.kind = isTopic ? 'topic' : n.type === 'exploration' ? 'exploration' : 'writing';
   }
 
   // ---- topics ---------------------------------------------------------------------
@@ -192,7 +206,7 @@ function build() {
     n.topics = [...new Set(n.topics.map(canon))];
     if (n.kind === 'exploration' && !n.topics.length) n.topics = ['Other'];
     n.topicSlugs = n.topics.map(slugify);
-    n.url = n.kind === 'interest' ? withBase(`curiosities/${slugify(n.topics[0] || n.title)}/`)
+    n.url = n.kind === 'topic' ? withBase(`curiosities/${slugify(n.topics[0] || n.title)}/`)
       : n.kind === 'exploration' ? withBase(`curiosities/${n.topicSlugs[0] || 'misc'}/${n.slug}/`)
       : withBase(`library/${n.slug}/`);
   }
@@ -317,7 +331,7 @@ function build() {
 
   // ---- groupings --------------------------------------------------------------------
   const byDateDesc = (a, b) => (b.date || '').localeCompare(a.date || '') || a.title.localeCompare(b.title);
-  const listed = (n) => !n.isIndex && n.status !== 'archived';
+  const listed = (n) => !n.isIndex && n.status !== 'archived' && n.kind !== 'topic';
   const writing = notes.filter((n) => n.kind === 'writing' && listed(n));
   const seriesMap = new Map();
   for (const n of notes.filter((x) => x.series && x.kind === 'writing')) {
@@ -369,7 +383,7 @@ function build() {
   const libraryItems = [...writing.filter((n) => !n.series), ...series.map(seriesEntry)].sort(byDateDesc);
 
   const explorations = notes.filter((n) => n.kind === 'exploration' && listed(n));
-  const interestNotes = notes.filter((n) => n.kind === 'interest');
+  const topicNotes = notes.filter((n) => n.kind === 'topic');
 
   const topicMap = new Map();
   const ensure = (name, extra = {}) => {
@@ -378,24 +392,27 @@ function build() {
     return topicMap.get(s);
   };
   for (const n of notes) n.topics.forEach((t) => ensure(t));
-  for (const n of interestNotes) {
+  for (const n of topicNotes) {
     const name = n.props.topic || n.title;
     if (name) ensure(name);
   }
   for (const t of topicMap.values()) {
-    t.note = interestNotes.find((n) => n.topicSlugs.includes(t.slug) || slugify(n.title) === t.slug) || null;
-    if (t.note?.props?.hue) t.hue = t.note.props.hue;
-    if (t.note?.description) t.blurb = t.note.description;
+    t.note = topicNotes.find((n) => n.topicSlugs.includes(t.slug) || slugify(n.title) === t.slug) || null;
+    if (t.note) {
+      if (t.note.props.hue) t.hue = t.note.props.hue;
+      if (t.note.props.topic || t.note.title) t.name = t.note.props.topic || t.note.title;
+      if (t.note.description) t.blurb = t.note.description;
+    }
     t.explorations = explorations.filter((n) => n.topicSlugs.includes(t.slug));
     t.current = t.explorations.filter((n) => n.status !== 'past');
     t.past = t.explorations.filter((n) => n.status === 'past');
+    t.guides = libraryItems.filter((n) => (n.type === 'guide' || n.type === 'guides') && n.topics.map(slugify).includes(t.slug));
+    t.resources = libraryItems.filter((n) => (n.type === 'resource' || n.type === 'resources') && n.topics.map(slugify).includes(t.slug));
+    t.articles = libraryItems.filter((n) => (n.type === 'article' || n.type === 'essay' || n.type === 'story') && n.topics.map(slugify).includes(t.slug));
+    t.notes = libraryItems.filter((n) => (n.type === 'note' || n.type === 'reflection' || n.type === 'review') && n.topics.map(slugify).includes(t.slug));
     t.writing = libraryItems.filter((n) => n.topics.map(slugify).includes(t.slug));
     t.projects = projects.filter((p) => (p.topics || []).map(slugify).includes(t.slug));
     t.experiments = experiments.filter((p) => (p.topics || []).map(slugify).includes(t.slug));
-    if (!t.blurb) {
-      const firstPiece = t.writing[0] || t.explorations[0];
-      t.blurb = firstPiece?.excerpt ? firstPiece.excerpt : `Writing and thoughts on ${t.name}.`;
-    }
   }
   // Only topics with actual published content will have pages and cards
   const topics = [...topicMap.values()].filter((t) => t.slug !== 'other' && (t.note || t.explorations.length || t.writing.length || t.projects.length || t.experiments.length));
