@@ -1,0 +1,33 @@
+---
+import Base from '../layouts/Base.astro';
+import Comments from '../components/Comments.astro';
+import { getGarden, slugify } from '../lib/garden.mjs';
+import { site } from '../data/site.mjs';
+import { withBase } from '../lib/url.mjs';
+const g = getGarden();
+const featured = g.projects.filter((p) => p.featured), rest = g.projects.filter((p) => !p.featured);
+const ordered = [...featured, ...rest];
+---
+<Base title="The Workshop" description="Projects, experiments and small tools." place="workshop">
+  <header class="page-head"><div class="wrap"><h1>The Workshop</h1><p>Things I build, break and tune. This is a light showcase; the code itself lives on GitHub.</p></div></header>
+  <div class="wrap" style="margin-top:1rem">
+    <div class="projects">
+      {ordered.map((p) => (
+        <article class="project">
+          <div><h3>{p.title}</h3><p>{p.description}</p>{p.why && <p class="why">{p.why}</p>}</div>
+          <span class={`pill ${p.status}`}>{p.status}</span>
+          <div class="tools-used">{p.tech?.map((t) => <span class="chip">{t}</span>)}{p.topics?.map((t) => <a class="chip" href={withBase(`curiosities/${slugify(t)}/`)}>{t}</a>)}</div>
+          {p.link && <a class="go" href={p.link}>View the project</a>}
+        </article>
+      ))}
+    </div>
+    {g.experiments.length > 0 && (
+      <section class="section">
+        <h2>Experiments and small things</h2>
+        <ul class="rows">{g.experiments.map((e) => <li class="row" style="grid-template-columns:1fr auto"><div><h3>{e.link ? <a href={e.link}>{e.title}</a> : e.title}</h3><p>{e.description}</p></div></li>)}</ul>
+      </section>
+    )}
+    <section class="section"><h2>More on GitHub</h2><p>Everything else, including half-finished things, is on <a href={site.github}>my GitHub profile</a>.</p></section>
+    <Comments id="workshop" title="Workshop Feedback & Ideas" description="Building, tinkering, or have suggestions for these tools? Leave a comment below." />
+  </div>
+</Base>

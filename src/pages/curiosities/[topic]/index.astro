@@ -1,0 +1,24 @@
+---
+import Base from '../../../layouts/Base.astro';
+import NoteRow from '../../../components/NoteRow.astro';
+import { getGarden } from '../../../lib/garden.mjs';
+import { withBase } from '../../../lib/url.mjs';
+export function getStaticPaths() { return getGarden().topics.map((t) => ({ params: { topic: t.slug }, props: { t } })); }
+const { t } = Astro.props;
+const empty = !t.note && !t.explorations.length && !t.writing.length && !t.projects.length && !t.experiments.length;
+---
+<Base title={t.name} description={t.blurb} place="curiosities">
+  <header class="topic-head" style={`--hue:${t.hue}`}><div class="wrap"><a class="back" href={withBase('curiosities/')}>← Curiosities</a><h1>{t.name}</h1><p style="font-size:1.2rem;color:var(--ink-soft);max-width:50ch;margin:0">{t.blurb}</p></div></header>
+  <div class="wrap">
+    {t.note && <div class="narrow" style="margin:2rem 0 0"><div class="prose" set:html={t.note.html} /></div>}
+    {empty && <p class="empty-note" style="margin-top:2rem">Nothing here yet. Publish a note with <code>topics: [{t.name}]</code> and it will show up on this page.</p>}
+    {t.current.length > 0 && <section class="section"><h2>Exploring now</h2><ul class="rows">{t.current.map((n) => <NoteRow item={n} topics={false} />)}</ul></section>}
+    {t.past.length > 0 && <section class="section past"><h2>Past explorations</h2><ul class="rows">{t.past.map((n) => <NoteRow item={n} topics={false} />)}</ul></section>}
+    {t.writing.length > 0 && <section class="section"><h2>Writing</h2><ul class="rows">{t.writing.map((n) => <NoteRow item={n} topics={false} />)}</ul></section>}
+    {(t.projects.length > 0 || t.experiments.length > 0) && (
+      <section class="section"><h2>Built</h2>
+        <ul class="rows">{[...t.projects, ...t.experiments].map((p) => <li class="row" style="grid-template-columns:1fr"><div><h3>{p.link ? <a href={p.link}>{p.title}</a> : p.title}</h3><p>{p.description}</p></div></li>)}</ul>
+      </section>
+    )}
+  </div>
+</Base>

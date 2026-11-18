@@ -1,0 +1,45 @@
+---
+import Base from '../../layouts/Base.astro';
+import NoteRow from '../../components/NoteRow.astro';
+import { getGarden } from '../../lib/garden.mjs';
+import { fallbackCurrent } from '../../data/curiosities.mjs';
+import { withBase } from '../../lib/url.mjs';
+const g = getGarden();
+const shown = g.topics.filter((t) => t.slug !== 'other');
+const current = g.explorations.filter((n) => n.status !== 'past');
+const past = g.explorations.filter((n) => n.status === 'past');
+---
+<Base title="Curiosities" description="Interests, explorations and rabbit holes." place="curiosities">
+  <header class="page-head"><div class="wrap"><h1>Curiosities</h1><p>Subjects I explore because they are interesting, not because they must produce something.</p></div></header>
+  <div class="wrap">
+    <section class="section" style="padding-top:2rem">
+      <div class="section-head"><h2>Long-term interests</h2><p>Areas I keep coming back to.</p></div>
+      <div class="topics">
+        {shown.map((t) => (
+          <a class="topic" style={`--hue:${t.hue}`} href={withBase(`curiosities/${t.slug}/`)}>
+            <h3>{t.name}</h3><p>{t.blurb}</p>
+            <small>{[t.current.length && `${t.current.length} exploring`, t.writing.length && `${t.writing.length} written`].filter(Boolean).join(' · ')}</small>
+          </a>
+        ))}
+      </div>
+    </section>
+    <section class="section">
+      <div class="section-head"><h2>Current explorations</h2></div>
+      {current.length
+        ? <ul class="rows">{current.map((n) => <NoteRow item={n} />)}</ul>
+        : <ul class="rows"><li class="row t-exploration"><span class="kind">Exploration</span><div><h3><a href={withBase(`curiosities/colour-science/`)}>{fallbackCurrent.title}</a></h3><p>{fallbackCurrent.description}</p></div><span class="when"></span></li></ul>}
+    </section>
+    <section class="section">
+      <div class="section-head"><h2>Gallery</h2><p>Photographs and visual experiments.</p></div>
+      {g.photos.length
+        ? <div class="gallery">{g.photos.map((p) => <figure><img src={p.src} alt={p.caption} loading="lazy" /><figcaption>{p.caption}</figcaption></figure>)}</div>
+        : <p class="empty-note">Add images to <code>public/gallery/</code> and they appear here automatically.</p>}
+    </section>
+    {past.length > 0 && (
+      <section class="section past">
+        <div class="section-head"><h2>Past explorations</h2><p>Finished with, but never deleted.</p></div>
+        <ul class="rows">{past.map((n) => <NoteRow item={n} />)}</ul>
+      </section>
+    )}
+  </div>
+</Base>

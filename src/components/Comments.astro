@@ -1,0 +1,707 @@
+---
+import { site } from '../data/site.mjs';
+
+export interface Props {
+  itemId?: string;
+  pageId?: string;
+  chapterId?: string;
+  id?: string;
+  title?: string;
+  description?: string;
+}
+
+const {
+  itemId,
+  pageId,
+  chapterId,
+  id,
+  title = 'Discussion & Reflections',
+  description = 'Share your thoughts, reactions, or questions. All comments are moderated.'
+} = Astro.props;
+
+const currentId = (itemId || pageId || id || chapterId || 'general').trim();
+
+const cfg = site.comments || { enabled: true, webAppUrl: '' };
+const webAppUrl = cfg.webAppUrl || (cfg.googleSheets && cfg.googleSheets.webAppUrl) || '';
+---
+
+<section class="comments-section" id="comments" data-item-id={currentId} data-api={webAppUrl}>
+  <div class="comments-header">
+    <div class="comments-title-wrap">
+      <span class="comments-badge">Discussion</span>
+      <h3>{title}</h3>
+    </div>
+    <p>{description}</p>
+  </div>
+
+  <div class="native-comments">
+    {!webAppUrl && (
+      <div class="setup-notice" role="alert">
+        <div class="setup-icon" aria-hidden="true">ℹ️</div>
+        <div>
+          <strong>Google Apps Script backend URL needed</strong>
+          <p>
+            Your native comment system is ready! To connect your private Google Sheet, follow
+            <code>docs/google-sheets-comments.md</code> and paste your Web App URL into <code>src/data/site.mjs</code>.
+          </p>
+        </div>
+      </div>
+    )}
+
+    <!-- Comment Submission Form -->
+    <form class="comment-form" id="comment-form" novalidate>
+      <div class="form-feedback" id="form-feedback" aria-live="polite" hidden></div>
+
+      <!-- Honeypot anti-spam field (hidden from humans, catches bots) -->
+      <div class="hp-field" aria-hidden="true">
+        <label for="comment-hp">Leave this empty</label>
+        <input type="text" id="comment-hp" name="honeypot" tabindex="-1" autocomplete="off" />
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label for="comment-username">Your Name / Handle <span class="label-muted">(optional)</span></label>
+          <input
+            type="text"
+            id="comment-username"
+            name="username"
+            maxlength="40"
+            placeholder="Anonymous"
+            autocomplete="name"
+          />
+        </div>
+      </div>
+
+      <div class="form-field">
+        <div class="label-split">
+          <label for="comment-body">Comment <span class="label-req" aria-label="required">*</span></label>
+          <span class="char-count" id="char-count">0 / 2000</span>
+        </div>
+        <textarea
+          id="comment-body"
+          name="comment"
+          rows="4"
+          maxlength="2000"
+          required
+          placeholder="Write your thought, feedback, or question here…"
+        ></textarea>
+      </div>
+
+      <div class="form-actions">
+        <p class="form-note">
+          🛡️ Comments are reviewed to keep this space thoughtful and spam-free.
+        </p>
+        <button type="submit" class="submit-btn" id="submit-btn">
+          <span class="btn-text">Submit Comment</span>
+          <span class="btn-spinner" aria-hidden="true" hidden></span>
+        </button>
+      </div>
+    </form>
+
+    <!-- Approved Comments List -->
+    <div class="comments-list-section">
+      <div class="comments-list-header">
+        <h4>Responses <span class="comment-count-badge" id="comment-count-badge">0</span></h4>
+      </div>
+
+      <!-- Empty state -->
+      <div class="comments-empty" id="comments-empty" hidden>
+        <p>No comments yet on this piece. Be the first to share your thoughts!</p>
+      </div>
+
+      <!-- Error state -->
+      <div class="comments-error" id="comments-error" hidden>
+        <p>Unable to load comments right now. You can still leave a message above.</p>
+      </div>
+
+      <!-- Container for approved comments -->
+      <ul class="comments-list" id="comments-list" aria-live="polite"></ul>
+    </div>
+  </div>
+</section>
+
+<script is:inline>
+  (function () {
+    const section = document.getElementById('comments');
+    if (!section) return;
+
+    const itemId = section.dataset.itemId || 'general';
+    const apiUrl = section.dataset.api;
+
+    const form = document.getElementById('comment-form');
+    const feedback = document.getElementById('form-feedback');
+    const submitBtn = document.getElementById('submit-btn');
+    const btnText = submitBtn ? submitBtn.querySelector('.btn-text') : null;
+    const btnSpinner = submitBtn ? submitBtn.querySelector('.btn-spinner') : null;
+    const textarea = document.getElementById('comment-body');
+    const charCount = document.getElementById('char-count');
+    const usernameInput = document.getElementById('comment-username');
+    const honeypotInput = document.getElementById('comment-hp');
+
+    const emptyEl = document.getElementById('comments-empty');
+    const errorEl = document.getElementById('comments-error');
+    const listEl = document.getElementById('comments-list');
+    const countBadge = document.getElementById('comment-count-badge');
+
+    // Character count indicator
+    if (textarea && charCount) {
+      textarea.addEventListener('input', function () {
+        const len = textarea.value.length;
+        charCount.textContent = len + ' / 2000';
+        if (len > 1900) {
+          charCount.classList.add('near-limit');
+        } else {
+          charCount.classList.remove('near-limit');
+        }
+      });
+    }
+
+    function showFeedback(type, message) {
+      if (!feedback) return;
+      feedback.className = 'form-feedback ' + type;
+      feedback.textContent = message;
+      feedback.hidden = false;
+    }
+
+    function hideFeedback() {
+      if (!feedback) return;
+      feedback.hidden = true;
+      feedback.textContent = '';
+    }
+
+    function setSubmitting(isSubmitting) {
+      if (!submitBtn) return;
+      submitBtn.disabled = isSubmitting;
+      if (btnSpinner) btnSpinner.hidden = !isSubmitting;
+      if (btnText) btnText.textContent = isSubmitting ? 'Submitting…' : 'Submit Comment';
+    }
+
+    function formatDate(isoString) {
+      try {
+        const d = new Date(isoString);
+        if (isNaN(d.getTime())) return 'Recently';
+        return d.toLocaleDateString(undefined, {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        });
+      } catch (e) {
+        return 'Recently';
+      }
+    }
+
+    function getInitials(name) {
+      if (!name) return 'A';
+      const parts = name.trim().split(/\s+/);
+      if (parts.length >= 2) {
+        return (parts[0][0] + parts[1][0]).toUpperCase();
+      }
+      return name.slice(0, 2).toUpperCase();
+    }
+
+    // Safely render comment item using text nodes
+    function createCommentElement(item) {
+      const li = document.createElement('li');
+      li.className = 'comment-card';
+
+      const head = document.createElement('div');
+      head.className = 'comment-head';
+
+      const avatar = document.createElement('div');
+      avatar.className = 'comment-avatar';
+      avatar.textContent = getInitials(item.username);
+
+      const meta = document.createElement('div');
+      meta.className = 'comment-meta';
+
+      const author = document.createElement('strong');
+      author.className = 'comment-author';
+      author.textContent = item.username || 'Anonymous';
+
+      const time = document.createElement('time');
+      time.className = 'comment-time';
+      time.dateTime = item.timestamp || '';
+      time.textContent = formatDate(item.timestamp);
+
+      meta.appendChild(author);
+      meta.appendChild(time);
+      head.appendChild(avatar);
+      head.appendChild(meta);
+
+      const body = document.createElement('div');
+      body.className = 'comment-content';
+      body.textContent = item.comment || '';
+
+      li.appendChild(head);
+      li.appendChild(body);
+      return li;
+    }
+
+    // Fetch approved comments quietly without a blocking/perpetual spinner
+    async function loadComments() {
+      if (!apiUrl) {
+        if (emptyEl) {
+          emptyEl.hidden = false;
+          emptyEl.querySelector('p').textContent = 'No comments yet on this piece. Be the first to share your thoughts!';
+        }
+        return;
+      }
+
+      try {
+        if (emptyEl) emptyEl.hidden = true;
+        if (errorEl) errorEl.hidden = true;
+
+        const url = apiUrl + (apiUrl.includes('?') ? '&' : '?') + 'action=get&itemId=' + encodeURIComponent(itemId);
+        const res = await fetch(url, { method: 'GET', cache: 'no-cache' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+
+        const data = await res.json();
+        const items = Array.isArray(data.comments) ? data.comments : [];
+
+        if (countBadge) countBadge.textContent = String(items.length);
+
+        if (items.length === 0) {
+          if (emptyEl) emptyEl.hidden = false;
+          if (listEl) listEl.innerHTML = '';
+        } else {
+          if (emptyEl) emptyEl.hidden = true;
+          if (listEl) {
+            listEl.innerHTML = '';
+            items.forEach(function (c) {
+              listEl.appendChild(createCommentElement(c));
+            });
+          }
+        }
+      } catch (err) {
+        console.warn('[Comments] Failed to load comments:', err);
+        if (emptyEl) emptyEl.hidden = false;
+      }
+    }
+
+    // Handle comment submission
+    if (form) {
+      form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        hideFeedback();
+
+        if (!apiUrl) {
+          showFeedback('error', 'Please configure your Google Apps Script Web App URL in src/data/site.mjs to enable submissions.');
+          return;
+        }
+
+        const commentText = (textarea ? textarea.value : '').trim();
+        const username = (usernameInput ? usernameInput.value : '').trim();
+        const honeypot = (honeypotInput ? honeypotInput.value : '').trim();
+
+        if (!commentText) {
+          showFeedback('error', 'Please write a comment before submitting.');
+          if (textarea) textarea.focus();
+          return;
+        }
+
+        if (commentText.length > 2000) {
+          showFeedback('error', 'Your comment exceeds the 2,000 character limit.');
+          return;
+        }
+
+        setSubmitting(true);
+
+        try {
+          const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({
+              itemId: itemId,
+              username: username || 'Anonymous',
+              comment: commentText,
+              honeypot: honeypot
+            })
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            form.reset();
+            if (charCount) charCount.textContent = '0 / 2000';
+            showFeedback(
+              'success',
+              '✓ Thank you! Your reflection has been received and will appear once reviewed by the author.'
+            );
+          } else {
+            showFeedback('error', result.error || 'Failed to submit comment. Please try again.');
+          }
+        } catch (err) {
+          console.error('[Comments] Submission error:', err);
+          showFeedback('error', 'Network error while submitting. Please check your connection or try again in a moment.');
+        } finally {
+          setSubmitting(false);
+        }
+      });
+    }
+
+    loadComments();
+  })();
+</script>
+
+<style>
+  .comments-section {
+    margin-top: 4.5rem;
+    padding: 3rem 0 1.5rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .comments-header {
+    margin-bottom: 2rem;
+  }
+
+  .comments-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .comments-badge {
+    font-family: monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--accent) 18%, transparent);
+    color: var(--accent);
+    border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  }
+
+  .comments-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.015em;
+  }
+
+  .comments-header p {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  /* Setup Notice */
+  .setup-notice {
+    display: flex;
+    gap: 0.85rem;
+    background: color-mix(in srgb, var(--accent) 10%, var(--surface-2));
+    border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 2rem;
+    font-size: 0.9rem;
+    color: var(--ink);
+  }
+
+  .setup-notice code {
+    background: var(--surface);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.82rem;
+    border: 1px solid var(--line);
+  }
+
+  /* Form */
+  .comment-form {
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 3rem;
+    box-shadow: 0 4px 20px -8px rgba(0, 0, 0, 0.04);
+  }
+
+  .hp-field {
+    display: none !important;
+    visibility: hidden;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  @media (min-width: 600px) {
+    .form-row {
+      grid-template-columns: minmax(0, 320px);
+    }
+  }
+
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .form-field label {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .label-split {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .label-muted {
+    font-weight: 400;
+    color: var(--ink-soft);
+    font-size: 0.82rem;
+  }
+
+  .label-req {
+    color: #e05252;
+    margin-left: 0.15rem;
+  }
+
+  .char-count {
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    font-family: monospace;
+  }
+
+  .char-count.near-limit {
+    color: #e05252;
+    font-weight: bold;
+  }
+
+  .comment-form input[type="text"],
+  .comment-form textarea {
+    background: var(--surface);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 0.75rem 0.9rem;
+    font-family: inherit;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .comment-form input[type="text"]:focus,
+  .comment-form textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent);
+  }
+
+  .comment-form textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+
+  .form-actions {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  @media (min-width: 600px) {
+    .form-actions {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+    }
+  }
+
+  .form-note {
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+  }
+
+  .submit-btn {
+    background: var(--accent);
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    padding: 0.7rem 1.4rem;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: transform 0.1s ease, filter 0.15s ease;
+  }
+
+  .submit-btn:hover:not(:disabled) {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+  }
+
+  .submit-btn:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .btn-spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  /* Feedback */
+  .form-feedback {
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.25rem;
+    font-size: 0.9rem;
+    line-height: 1.45;
+  }
+
+  .form-feedback.success {
+    background: color-mix(in srgb, #2e7d32 12%, var(--surface-2));
+    border: 1px solid color-mix(in srgb, #2e7d32 35%, transparent);
+    color: #2e7d32;
+  }
+
+  :global([data-theme="dark"]) .form-feedback.success {
+    background: color-mix(in srgb, #81c784 15%, var(--surface-2));
+    color: #a5d6a7;
+    border-color: color-mix(in srgb, #81c784 40%, transparent);
+  }
+
+  .form-feedback.error {
+    background: color-mix(in srgb, #c62828 12%, var(--surface-2));
+    border: 1px solid color-mix(in srgb, #c62828 35%, transparent);
+    color: #c62828;
+  }
+
+  :global([data-theme="dark"]) .form-feedback.error {
+    background: color-mix(in srgb, #ef5350 15%, var(--surface-2));
+    color: #ef9a9a;
+    border-color: color-mix(in srgb, #ef5350 40%, transparent);
+  }
+
+  /* Comments List */
+  .comments-list-section {
+    margin-top: 2.5rem;
+  }
+
+  .comments-list-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .comments-list-header h4 {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .comment-count-badge {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    color: var(--ink-soft);
+  }
+
+  .comments-empty,
+  .comments-error {
+    padding: 1.75rem;
+    border-radius: 12px;
+    background: var(--surface-2);
+    border: 1px dashed var(--line);
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 0.92rem;
+  }
+
+  .comments-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .comment-card {
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 1.25rem;
+    box-shadow: 0 2px 8px -4px rgba(0, 0, 0, 0.04);
+  }
+
+  .comment-head {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .comment-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--accent) 15%, var(--surface));
+    color: var(--accent);
+    border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+    font-weight: 700;
+    font-size: 0.82rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    letter-spacing: -0.02em;
+  }
+
+  .comment-meta {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.25;
+  }
+
+  .comment-author {
+    font-size: 0.94rem;
+    color: var(--ink);
+  }
+
+  .comment-time {
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+  }
+
+  .comment-content {
+    color: var(--ink);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+</style>

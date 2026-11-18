@@ -1,0 +1,130 @@
+---
+import 'katex/dist/katex.min.css';
+import Base from '../layouts/Base.astro';
+import Comments from './Comments.astro';
+import { fmtDate, cap } from '../lib/format.mjs';
+import { slugify } from '../lib/garden.mjs';
+import { withBase } from '../lib/url.mjs';
+const { note, place = 'library', back } = Astro.props;
+const info = note.seriesInfo;
+const related = Astro.props.related || [];
+---
+<Base title={note.subtitle ? `${note.subtitle} · ${info ? info.title : note.title}` : note.title} description={note.excerpt} place={place}>
+  {info ? (
+    <div class="wrap book-reader-layout">
+      <!-- Left Side: Sticky Chapters Index Card (matching reference design) -->
+      <aside class="chapter-sidebar">
+        <div class="chapter-card">
+          <div class="chapter-card-header">
+            <h3>{info.total === 9 ? 'All Nine Chapters' : `All ${info.total} Chapters`}</h3>
+            {info.cover && (
+              <a href={withBase(`series/${info.slug}/`)} title={`View ${info.title} details`} class="sidebar-cover-thumb">
+                <img src={info.cover} alt={info.title} />
+              </a>
+            )}
+          </div>
+          <ol class="chapter-list">
+            {info.chapters.map((ch) => (
+              <li class={`chapter-item ${ch.isCurrent ? 'active' : ''}`}>
+                <a href={ch.url} class="chapter-link">
+                  <div class="chapter-meta">
+                    <span class="chapter-num">{ch.isBlurb ? 'Start here' : `Chapter ${String(ch.chapterNumber).padStart(2, '0')}`}</span>
+                    <span class="chapter-read-time">{ch.readingMinutes} min read</span>
+                  </div>
+                  <div class="chapter-title-text">{ch.isBlurb ? ch.title : (ch.subtitle || ch.title)}</div>
+                </a>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </aside>
+
+      <!-- Right Side: Main Chapter Content -->
+      <main class="chapter-main">
+        <article class="chapter-article">
+          <div class="chapter-top-bar">
+            <a class="back" href={withBase(`series/${info.slug}/`)}>← {info.title}</a>
+            <div class="chapter-top-meta">
+              {info.position ? (
+                <span>Chapter {String(info.position).padStart(2, '0')} of {String(info.total).padStart(2, '0')}</span>
+              ) : (
+                <span>Prologue</span>
+              )}
+              {note.date && <span> · {fmtDate(note.date)}</span>}
+              <span> · {note.readingMinutes} min read</span>
+            </div>
+          </div>
+
+          <h1 class="chapter-heading">{note.subtitle ? note.subtitle : note.title}</h1>
+          {note.subtitle && note.title !== note.subtitle && !/blurb/i.test(note.title) && (
+            <p class="chapter-sub-heading">{note.title}</p>
+          )}
+
+          {note.topics.length > 0 && (
+            <div class="chips" style="margin: 0.5rem 0 1.5rem">
+              {note.topics.map((t) => <a class="chip" href={withBase(`curiosities/${slugify(t)}/`)}>{t}</a>)}
+            </div>
+          )}
+
+          <div class="prose" set:html={note.html} />
+
+          <!-- Bottom Side-by-Side Chapter Navigation Cards -->
+          {(info.prev || info.next) && (
+            <nav class="series-card-pager" aria-label="Chapter navigation">
+              {info.prev ? (
+                <a class="pager-card prev" href={info.prev.url}>
+                  <span class="pager-dir">← Previous · {info.prev.chapterNumber ? `Chapter ${String(info.prev.chapterNumber).padStart(2, '0')}` : info.prev.title}</span>
+                  <span class="pager-title">{info.prev.subtitle || info.prev.title}</span>
+                </a>
+              ) : <div class="pager-card-placeholder"></div>}
+              {info.next ? (
+                <a class="pager-card next" href={info.next.url}>
+                  <span class="pager-dir">Next · {info.next.chapterNumber ? `Chapter ${String(info.next.chapterNumber).padStart(2, '0')}` : info.next.title} →</span>
+                  <span class="pager-title">{info.next.subtitle || info.next.title}</span>
+                </a>
+              ) : <div class="pager-card-placeholder"></div>}
+            </nav>
+          )}
+
+          {(note.backlinks.length > 0 || related.length > 0) && (
+            <aside class="after">
+              {note.backlinks.length > 0 && <section><h2>Mentioned in</h2><ul>{note.backlinks.map((b) => <li><a href={b.url}>{b.title}</a></li>)}</ul></section>}
+              {related.length > 0 && <section><h2>Related</h2><ul>{related.map((r) => <li><a href={r.url}>{r.title}</a></li>)}</ul></section>}
+            </aside>
+          )}
+
+          <Comments id={note.slug || note.id} title={`Thoughts on "${note.title}"`} description="Have a perspective, question, or correction? Leave a comment below." />
+        </article>
+      </main>
+    </div>
+  ) : (
+    <>
+      <article class="narrow article-head">
+        <a class="back" href={back.href}>← {back.label}</a>
+        <div class="meta">
+          <span>{cap(note.type)}</span>
+          {note.date && <time datetime={note.date}>{fmtDate(note.date)}</time>}
+          <span>{note.readingMinutes} min read</span>
+          {note.status === 'current' && <span>Currently exploring</span>}
+        </div>
+        <h1>{note.title}</h1>
+        {note.topics.length > 0 && <div class="chips" style="margin-top:1rem">{note.topics.map((t) => <a class="chip" href={withBase(`curiosities/${slugify(t)}/`)}>{t}</a>)}</div>}
+      </article>
+      <div class="narrow">
+        {note.headings.length > 2 && (
+          <details class="toc"><summary>On this page</summary>
+            <ol>{note.headings.map((h) => <li class={`d${h.depth}`}><a href={`#${h.id}`}>{h.text}</a></li>)}</ol>
+          </details>
+        )}
+        <div class="prose" set:html={note.html} />
+        {(note.backlinks.length > 0 || related.length > 0) && (
+          <aside class="after">
+            {note.backlinks.length > 0 && <section><h2>Mentioned in</h2><ul>{note.backlinks.map((b) => <li><a href={b.url}>{b.title}</a></li>)}</ul></section>}
+            {related.length > 0 && <section><h2>Related</h2><ul>{related.map((r) => <li><a href={r.url}>{r.title}</a></li>)}</ul></section>}
+          </aside>
+        )}
+        <Comments id={note.slug || note.id} title={`Thoughts on "${note.title}"`} description="Have a perspective, question, or correction? Leave a comment below." />
+      </div>
+    </>
+  )}
+</Base>

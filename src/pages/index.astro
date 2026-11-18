@@ -1,0 +1,192 @@
+---
+import fs from 'node:fs';
+import Base from '../layouts/Base.astro';
+import Scene from '../components/Scene.astro';
+import NoteRow from '../components/NoteRow.astro';
+import Comments from '../components/Comments.astro';
+import { site } from '../data/site.mjs';
+import { fallbackCurrent } from '../data/curiosities.mjs';
+import { getGarden, slugify } from '../lib/garden.mjs';
+import { withBase } from '../lib/url.mjs';
+
+const g = getGarden();
+const portraitFile = ['portrait.jpg', 'portrait.jpeg', 'portrait.png', 'portrait.webp', 'gallery/portrait.jpg'].find((f) => fs.existsSync('public/' + f));
+const portraitMtime = portraitFile ? fs.statSync('public/' + portraitFile).mtimeMs : 0;
+const portrait = portraitFile ? `${portraitFile}?v=${Math.round(portraitMtime)}` : null;
+const cur = g.current;
+const now = cur ? { title: cur.title, url: cur.url, description: cur.excerpt, topic: cur.topics[0], threads: cur.headings.slice(0, 4).map((h) => h.text) }
+  : { ...fallbackCurrent, url: withBase(`curiosities/${slugify(fallbackCurrent.topic)}/`) };
+const recent = [...g.recent.slice(0, 4)];
+
+const places = [
+  { k: 'library', h: 'The Library', p: 'Essays, notes and stories I have written.' },
+  { k: 'workshop', h: 'The Workshop', p: 'Things I build, tinker with and tool up.' },
+  { k: 'curiosities', h: 'Curiosities', p: 'Interests, rabbit holes and what I am exploring now.' },
+  { k: 'about', h: 'About', p: 'The person behind the place.' },
+];
+
+const startingPoints = [
+  {
+    title: 'System of Goals',
+    url: withBase('library/system-of-goals/'),
+    badge: 'Framework',
+    desc: 'A structured way of thinking about goals, ambition, and sustained momentum without burnout.',
+  },
+  {
+    title: 'Triggered Lives: Book Blurb',
+    url: withBase('library/triggered-lives/book-blurb/'),
+    badge: 'Fiction',
+    desc: 'The opening blurb to a slow-burn narrative examining ordinary people pushed to their tipping points.',
+  },
+  {
+    title: "My Windows Isn't Like Yours",
+    url: withBase('library/my-windows-isnt-like-yours/'),
+    badge: 'Craft & Tools',
+    desc: 'How I turned a standard operating system into an intentional, minimal, distraction-free environment.',
+  },
+];
+---
+<Base place="home">
+  <section class="hero">
+    <Scene />
+    <div class="wrap hero-grid">
+      <div class="hero-text">
+        <h1>{site.name}</h1>
+        <p class="lede">{site.tagline}</p>
+        <p class="identity">{site.identity}</p>
+        <div class="btns">
+          <a class="btn" href="#places">Explore my world</a>
+          <a class="btn ghost" href={withBase('about/')}>About me</a>
+        </div>
+      </div>
+      <div class="portrait-wrap">
+        <div class="portrait-glow"></div>
+        <div class="portrait">
+          {portrait ? (
+            <img src={withBase(portrait)} alt={`Portrait of ${site.name}`} />
+          ) : (
+            <div class="portrait-placeholder">
+              <div class="lens-emblem">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                  <circle cx="12" cy="13" r="4"/>
+                </svg>
+              </div>
+              <span class="file-badge">public/portrait.jpg</span>
+              <span class="viewfinder-caption">Avijit behind the viewfinder</span>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section wrap" id="manifesto">
+    <div class="philosophy">{site.philosophy.map((p) => <p>{p}</p>)}</div>
+  </section>
+
+  <section class="section wrap" id="places">
+    <div class="arches">
+      {places.map((x) => (
+        <a class={`arch ${x.k}`} href={withBase(x.k + '/')}>
+          <div class="arch-emblem-wrap">
+            <div class="arch-emblem">
+              {x.k === 'library' && (
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
+                  <path d="M6 6h10"/>
+                  <path d="M6 10h10"/>
+                </svg>
+              )}
+              {x.k === 'workshop' && (
+                <svg class="icon-gear" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="3"/>
+                  <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M4.93 19.07l2.12-2.12M16.95 7.05l2.12-2.12"/>
+                </svg>
+              )}
+              {x.k === 'curiosities' && (
+                <svg class="icon-orbits" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="9" stroke-dasharray="3 3" stroke-width="1.8"/>
+                  <circle cx="12" cy="12" r="5" stroke-width="2"/>
+                  <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+                </svg>
+              )}
+              {x.k === 'about' && (
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="8" r="4"/>
+                  <path d="M6 20v-2a6 6 0 0 1 12 0v2"/>
+                </svg>
+              )}
+            </div>
+          </div>
+          <div class="arch-content">
+            <h3>{x.h}</h3>
+            <p>{x.p}</p>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="wrap">
+    <div class="now" id="colour-science">
+      <div class="now-content">
+        <p class="label">Currently exploring</p>
+        <h2>{now.title}</h2>
+        <p>{now.description}</p>
+        {now.threads?.length > 0 && (
+          <ul class="threads-list">
+            {now.threads.map((t) => (
+              <li><span class="thread-dot"></span><span>{t}</span></li>
+            ))}
+          </ul>
+        )}
+        <a class="btn" href={now.url}>Follow the thread</a>
+      </div>
+      <div class="now-swatches" aria-hidden="true">
+        <div class="swatch-arch arch-1" style="background:#fb7185"></div>
+        <div class="swatch-arch arch-2" style="background:#fbbf24"></div>
+        <div class="swatch-arch arch-3" style="background:#34d399"></div>
+        <div class="swatch-arch arch-4" style="background:#38bdf8"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section wrap" id="start-here">
+    <div class="section-head">
+      <div>
+        <h2>New here?</h2>
+        <p class="start-sub">Start here…</p>
+      </div>
+      <p><a class="link-arrow" href={withBase('library/')}>Explore the entire Library →</a></p>
+    </div>
+    <div class="start-grid">
+      {startingPoints.map((sp) => (
+        <a class="start-card" href={sp.url}>
+          <div class="start-card-top">
+            <span class="start-badge">{sp.badge}</span>
+            <span class="start-arrow" aria-hidden="true">→</span>
+          </div>
+          <h3>{sp.title}</h3>
+          <p>{sp.desc}</p>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  {recent.length > 0 && (
+    <section class="section wrap" id="library-feed">
+      <div class="section-head">
+        <h2>Recently added</h2>
+        <p><a class="link-arrow" href={withBase('library/')}>See everything in the Library →</a></p>
+      </div>
+      <ul class="rows">
+        {recent.map((item) => <NoteRow item={item} topics={false} />)}
+      </ul>
+    </section>
+  )}
+
+  <section class="section wrap" id="community">
+    <Comments id="general" title="General Comments & Thoughts" description="A quiet space to leave a comment, idea, or reaction." />
+  </section>
+</Base>

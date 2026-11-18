@@ -1,0 +1,143 @@
+---
+import Base from '../layouts/Base.astro';
+import Comments from '../components/Comments.astro';
+import { site } from '../data/site.mjs';
+
+const channels = site.contactChannels || [
+  {
+    title: 'Electronic Mail (Preferred)',
+    address: 'avijit168d@gmail.com',
+    action: 'Send an email',
+    url: 'mailto:avijit168d@gmail.com',
+    badge: 'Direct'
+  },
+  {
+    title: 'GitHub & Digital Garden Vault',
+    address: 'github.com/AvijitDhangar',
+    action: 'Visit GitHub',
+    url: 'https://github.com/AvijitDhangar',
+    badge: 'Vault'
+  },
+  {
+    title: 'LinkedIn',
+    address: 'linkedin.com/in/avijitdhangar',
+    action: 'Connect on LinkedIn',
+    url: 'https://www.linkedin.com/in/avijitdhangar/',
+    badge: 'Profile'
+  },
+  {
+    title: 'Simkl Watchlist',
+    address: 'simkl.com/8304955',
+    action: 'View on Simkl',
+    url: 'https://simkl.com/8304955/',
+    badge: 'Media'
+  },
+  {
+    title: 'Medium',
+    address: 'medium.com/@avijitdhangar',
+    action: 'Read on Medium',
+    url: 'https://medium.com/@avijitdhangar',
+    badge: 'Writing'
+  }
+];
+---
+<Base title="Contact" description="Say hello or send a direct message." place="contact">
+  <header class="page-head">
+    <div class="wrap">
+      <h1>Say hello</h1>
+      <p>{site.closing} Ideas, collaborations, questions or just a quiet note are all welcome.</p>
+    </div>
+  </header>
+
+  <div class="narrow" style="margin-top:2.5rem">
+    <div class="contact-intro">
+      <p class="social-disclaimer">
+        <em>Note: I am not active on mainstream social media. The links below are direct communication avenues and vaults rather than feeds.</em>
+      </p>
+    </div>
+
+    <!-- Communication avenues cards -->
+    <div class="channels-grid">
+      {channels.map((c) => (
+        <a class="channel-card" href={c.url} target={c.url.startsWith('mailto:') ? undefined : '_blank'} rel={c.url.startsWith('mailto:') ? undefined : 'noopener noreferrer'}>
+          <div class="channel-top">
+            <span class="channel-title">{c.title}</span>
+            {c.badge && <span class="channel-badge">{c.badge}</span>}
+          </div>
+          <div class="channel-address">{c.address}</div>
+          <span class="channel-action">{c.action} →</span>
+        </a>
+      ))}
+    </div>
+
+    <!-- Direct Messaging / Comment Section -->
+    <div class="direct-msg-section">
+      <Comments id="contact" title="Leave a Direct Message" description="You can post a direct message or note here. No account required." />
+    </div>
+  </div>
+</Base>
+
+<style>
+  .contact-intro {
+    margin-bottom: 2rem;
+  }
+  .social-disclaimer {
+    color: var(--ink-soft);
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+  .channels-grid {
+    display: grid;
+    gap: 1rem;
+    margin-bottom: 3.5rem;
+  }
+  .channel-card {
+    display: flex;
+    flex-direction: column;
+    padding: 1.3rem 1.5rem;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: var(--surface);
+    text-decoration: none;
+    transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.2s ease, box-shadow 0.25s ease;
+  }
+  .channel-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px -12px rgba(0, 0, 0, 0.15);
+  }
+  .channel-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.3rem;
+  }
+  .channel-title {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--ink);
+  }
+  .channel-badge {
+    font-family: monospace;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.18rem 0.55rem;
+    border-radius: 999px;
+    background: var(--surface-2);
+    color: var(--ink-soft);
+  }
+  .channel-address {
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+    margin-bottom: 0.6rem;
+  }
+  .channel-action {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--accent);
+  }
+  .direct-msg-section {
+    padding-top: 1rem;
+  }
+</style>

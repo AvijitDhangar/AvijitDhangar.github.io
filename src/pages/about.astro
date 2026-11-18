@@ -1,0 +1,136 @@
+---
+import Base from '../layouts/Base.astro';
+import Comments from '../components/Comments.astro';
+import { site } from '../data/site.mjs';
+import { withBase } from '../lib/url.mjs';
+
+const a = site.about;
+const links = [
+  { label: 'GitHub', url: site.github, desc: 'Digital garden vault & source code' },
+  { label: 'LinkedIn', url: site.linkedin, desc: 'Professional background & connections' },
+  { label: 'Simkl', url: site.simkl, desc: 'Movies, anime & series tracking' },
+  { label: 'Medium', url: site.medium, desc: 'Longform writings & essays' },
+];
+---
+<Base title="About" description={site.intro} place="about">
+  <header class="page-head">
+    <div class="wrap">
+      <h1>About</h1>
+      <p>{site.intro}</p>
+    </div>
+  </header>
+
+  <div class="narrow" style="margin-top:2.5rem">
+    <div class="prose">
+      {a.paragraphs.map((p) => <p>{p}</p>)}
+      <p><em>{a.values}</em></p>
+    </div>
+
+    <div class="facts">
+      <div><b>Where I am headed</b>{a.direction}</div>
+      <div><b>Background</b>{a.education}</div>
+    </div>
+
+    <section class="touch-section" id="get-in-touch">
+      <h2>Get in touch</h2>
+      <div class="social-notice">
+        <span class="notice-icon">💬</span>
+        <p>{a.socialNote || "Sorry I'm not active on social media (essay coming soon about it)."}</p>
+      </div>
+
+      <p class="touch-lede">
+        You can find my work and digital footprints on these platforms, or send an email to <a href={`mailto:${site.email}`}>{site.email}</a>.
+      </p>
+
+      <ul class="touch-links">
+        {links.map((item) => (
+          <li>
+            <a href={item.url} target="_blank" rel="noopener noreferrer">
+              <span class="touch-name">{item.label}</span>
+              <span class="touch-desc">{item.desc}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+
+      <!-- Direct Comment / Message Box -->
+      <Comments id="about" title="Send a Message Directly" description="Leave a note or reflection right here. Comments are moderated." />
+    </section>
+  </div>
+</Base>
+
+<style>
+  .touch-section {
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--line);
+  }
+  .touch-section h2 {
+    font-size: 1.8rem;
+    margin-bottom: 0.8rem;
+  }
+  .touch-lede {
+    color: var(--ink-soft);
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+  }
+  .social-notice {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.9rem 1.2rem;
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+    border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+    border-left: 4px solid var(--accent);
+    margin-bottom: 1.5rem;
+  }
+  .notice-icon {
+    font-size: 1.2rem;
+    flex: none;
+  }
+  .social-notice p {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .touch-links {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 2rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+  @media (max-width: 600px) {
+    .touch-links {
+      grid-template-columns: 1fr;
+    }
+  }
+  .touch-links a {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 1.2rem;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: var(--surface);
+    text-decoration: none;
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .touch-links a:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px -10px rgba(0, 0, 0, 0.12);
+  }
+  .touch-name {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--ink);
+    margin-bottom: 0.2rem;
+  }
+  .touch-desc {
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+  }
+</style>

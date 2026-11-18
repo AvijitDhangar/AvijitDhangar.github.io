@@ -1,0 +1,68 @@
+---
+import Base from '../../layouts/Base.astro';
+import Comments from '../../components/Comments.astro';
+import NoteRow from '../../components/NoteRow.astro';
+import { getGarden, slugify } from '../../lib/garden.mjs';
+import { cap, fmtDate } from '../../lib/format.mjs';
+import { withBase } from '../../lib/url.mjs';
+const g = getGarden();
+const items = g.libraryItems;
+const featured = items.find((i) => i.featured) || items[0];
+const types = [...new Set(items.map((i) => (i.kind === 'series' ? 'series' : i.type)))];
+const topics = [...new Set(items.flatMap((i) => i.topics))];
+const featuredCover = featured?.cover || (featured?.slug === 'triggered-lives' ? withBase('covers/triggered-lives.png') : null);
+---
+<Base title="The Library" description="Essays, articles, notes and stories." place="library">
+  <header class="page-head"><div class="wrap"><h1>The Library</h1><p>Everything I write: essays, articles, notes, reflections, guides and stories.</p></div></header>
+  <div class="wrap">
+    {featured && (
+      <section class="featured" aria-label="Featured">
+        <div>
+          <p style="color:var(--ink-soft);margin-bottom:.4rem">Featured · {featured.kind === 'series' ? 'Story' : cap(featured.type)}{featured.date ? ' · ' + fmtDate(featured.date) : ''}</p>
+          <h2><a href={featured.url}>{featured.title}</a></h2>
+          <p>{featured.description}</p>
+          <a class="btn" href={featured.url}>Read</a>
+        </div>
+        {featuredCover ? (
+          <div class="featured-cover-container">
+            <a href={featured.url} class="featured-cover-wrap" aria-label={`Read ${featured.title}`}>
+              <img src={featuredCover} alt={`${featured.title} Book Cover`} class="featured-cover-img" />
+            </a>
+          </div>
+        ) : (
+          <div class="art" aria-hidden="true"></div>
+        )}
+      </section>
+    )}
+    <section class="filters" aria-label="Filter writing">
+      <input type="search" id="q" placeholder="Search the archive" aria-label="Search the archive" />
+      <div class="chips" id="type-chips">{types.map((t) => <button class="chip" type="button" aria-pressed="false" data-type={t}>{t === 'series' ? 'Stories' : cap(t) + 's'}</button>)}</div>
+      {topics.length > 0 && <div class="chips" id="topic-chips">{topics.map((t) => <button class="chip" type="button" aria-pressed="false" data-topic={slugify(t)}>{t}</button>)}</div>}
+    </section>
+    {items.length ? <ul class="rows" id="archive">{items.map((item) => <NoteRow item={item} filter />)}</ul> : <p class="empty-note">Nothing published yet. Publish a note from Obsidian and it will appear here.</p>}
+    <p class="empty-note" id="none" hidden>Nothing matches those filters.</p>
+    <Comments id="library" title="Library Discussion" description="Thoughts, reflections, or reading notes on any of the library pieces." />
+  </div>
+</Base>
+<script>
+  const rows = [...document.querySelectorAll('#archive .row')];
+  const q = document.getElementById('q');
+  const types = new Set(), topics = new Set();
+  const apply = () => {
+    const t = q.value.trim().toLowerCase();
+    let n = 0;
+    rows.forEach((r) => {
+      const ok = (!types.size || types.has(r.dataset.type)) && (!topics.size || [...topics].every((x) => r.dataset.topics.split(' ').includes(x))) && (!t || r.dataset.text.includes(t));
+      r.hidden = !ok; if (ok) n++;
+    });
+    document.getElementById('none').hidden = n > 0;
+  };
+  q.addEventListener('input', apply);
+  document.querySelectorAll('.filters .chip').forEach((b) => b.addEventListener('click', () => {
+    const on = b.getAttribute('aria-pressed') !== 'true';
+    b.setAttribute('aria-pressed', on);
+    const set = b.dataset.type ? types : topics, v = b.dataset.type || b.dataset.topic;
+    on ? set.add(v) : set.delete(v);
+    apply();
+  }));
+</script>

@@ -1,0 +1,10 @@
+---
+import NotePage from '../../../components/NotePage.astro';
+import { getGarden } from '../../../lib/garden.mjs';
+import { withBase } from '../../../lib/url.mjs';
+export function getStaticPaths() {
+  return getGarden().explorations.map((note) => ({ params: { topic: note.topicSlugs[0], slug: note.slug }, props: { note } }));
+}
+const { note } = Astro.props;
+---
+<NotePage note={note} place="curiosities" back={{ href: withBase(`curiosities/${note.topicSlugs[0]}/`), label: note.topics[0] || 'Curiosities' }} />

@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Avijit Dhangar — Photographer, storyteller, curious mind</title>
+<!-- Tailwind CSS v3 with Forms and Container Queries -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              dark: '#071013',
+              deep: '#091515',
+              surface: '#0d1d1e',
+              muted: '#152b2c',
+              border: 'rgba(255, 255, 255, 0.08)',
+              accent: '#f97316'
+            },
+            portal: {
+              blue: '#0284c7',
+              amber: '#d97706',
+              berry: '#db2777',
+              emerald: '#059669',
+              indigo: '#4f46e5'
+            }
+          },
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+            serif: ['Newsreader', 'Playfair Display', 'serif'],
+          }
+        }
+      }
+    }
+  </script>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@1,6..72,400;1,6..72,500;1,6..72,600&amp;family=Plus+Jakarta+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<style data-purpose="custom-animations">
+    @keyframes spin-slow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .animate-spin-slow {
+      animation: spin-slow 24s linear infinite;
+    }
+    .animate-spin-slower {
+      animation: spin-slow 36s linear infinite;
+    }
+    @keyframes gentle-pulse {
+      0%, 100% { opacity: 0.85; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.02); }
+    }
+    .animate-glow {
+      animation: gentle-pulse 6s ease-in-out infinite;
+    }
+  </style>
+<style data-purpose="arch-shapes">
+    /* Classic Roman Architectural Arch Curvatures */
+    .arch-card {
+      border-radius: 9999px 9999px 1rem 1rem;
+    }
+    .arch-hero {
+      border-radius: 9999px 9999px 1.5rem 1.5rem;
+    }
+  </style>
+</head>
+<body class="bg-[#071013] text-slate-100 font-sans antialiased selection:bg-amber-500/30 selection:text-amber-200 min-h-screen overflow-x-hidden">
+<!-- BEGIN: NavigationBar -->
+<header class="fixed top-0 inset-x-0 z-50 transition-all duration-300 backdrop-blur-md bg-[#071013]/70 border-b border-white/5" data-purpose="main-navigation">
+<div class="max-w-7xl mx-auto px-6 sm:px-8 h-16 flex items-center justify-between">
+<!-- Brand Identity -->
+<a class="flex items-center gap-2.5 group" data-purpose="brand-link" href="#">
+<span class="w-3.5 h-3.5 rounded-full bg-gradient-to-tr from-amber-500 to-orange-400 shadow-[0_0_12px_rgba(245,158,11,0.7)] group-hover:scale-110 transition-transform"></span>
+<span class="font-bold tracking-tight text-lg text-white group-hover:text-amber-300 transition-colors">Avijit</span>
+</a>
+<!-- Primary Navigation Links & Actions -->
+<div class="flex items-center gap-8">
+<nav class="hidden md:flex items-center gap-7 text-sm font-medium text-slate-300" data-purpose="nav-links">
+<a class="hover:text-white transition-colors" href="#library">Library</a>
+<a class="hover:text-white transition-colors" href="#workshop">Workshop</a>
+<a class="hover:text-white transition-colors" href="#curiosities">Curiosities</a>
+<a class="hover:text-white transition-colors" href="#about">About</a>
+</nav>
+<div class="flex items-center gap-3">
+<!-- Command Palette Trigger Badge -->
+<button aria-label="Quick search" class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium text-slate-400 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition-all" type="button">
+<svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span>Ctrl K</span>
+</button>
+<!-- Theme/Night Toggle -->
+<button aria-label="Toggle theme mode" class="p-2 rounded-full text-slate-300 hover:text-amber-300 hover:bg-white/5 transition-colors" type="button">
+<svg class="w-4 h-4" fill="currentColor" viewbox="0 0 20 20">
+<path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+</svg>
+</button>
+</div>
+</div>
+</div>
+</header>
+<!-- END: NavigationBar -->
+<main>
+<!-- BEGIN: HeroLandscapeSection -->
+<section class="relative min-h-[92vh] pt-24 pb-20 flex items-center overflow-hidden bg-gradient-to-b from-[#161c36] via-[#211634] to-[#071013]" data-purpose="hero-section">
+<!-- Vector Landscape Background Illustration -->
+<div class="absolute inset-0 pointer-events-none select-none z-0">
+<!-- Dusk Sky and Sunset Sun -->
+<div class="absolute top-[28%] left-[55%] md:left-[51%] -translate-x-1/2 -translate-y-1/2 w-64 h-64 md:w-80 md:h-80 rounded-full bg-gradient-to-tr from-amber-500 via-orange-500 to-amber-200 blur-sm opacity-90 shadow-[0_0_80px_rgba(249,115,22,0.45)]"></div>
+<!-- Atmospheric Clouds -->
+<div class="absolute top-16 left-12 w-52 h-14 bg-white/10 rounded-full blur-[1px]"></div>
+<div class="absolute top-24 right-20 w-64 h-16 bg-white/10 rounded-full blur-[1px]"></div>
+<!-- Distant Wind Turbines -->
+<svg class="absolute bottom-[28%] left-[45%] w-16 h-28 text-white/40" fill="none" viewbox="0 0 100 200">
+<line stroke="currentColor" stroke-width="3" x1="50" x2="50" y1="200" y2="70"></line>
+<g class="animate-spin-slow origin-[50px_70px]">
+<line stroke="currentColor" stroke-linecap="round" stroke-width="3" x1="50" x2="50" y1="70" y2="10"></line>
+<line stroke="currentColor" stroke-linecap="round" stroke-width="3" x1="50" x2="102" y1="70" y2="100"></line>
+<line stroke="currentColor" stroke-linecap="round" stroke-width="3" x1="50" x2="-2" y1="70" y2="100"></line>
+</g>
+</svg>
+<svg class="absolute bottom-[30%] left-[48%] w-12 h-20 text-white/30" fill="none" viewbox="0 0 100 200">
+<line stroke="currentColor" stroke-width="3" x1="50" x2="50" y1="200" y2="70"></line>
+<g class="animate-spin-slower origin-[50px_70px]">
+<line stroke="currentColor" stroke-linecap="round" stroke-width="3" x1="50" x2="50" y1="70" y2="10"></line>
+<line stroke="currentColor" stroke-linecap="round" stroke-width="3" x1="50" x2="102" y1="70" y2="100"></line>
+<line stroke="currentColor" stroke-linecap="round" stroke-width="3" x1="50" x2="-2" y1="70" y2="100"></line>
+</g>
+</svg>
+<svg class="absolute bottom-[32%] right-[10%] w-24 h-44 text-white/45 hidden lg:block" fill="none" viewbox="0 0 100 200">
+<line stroke="currentColor" stroke-width="3" x1="50" x2="50" y1="200" y2="70"></line>
+<g class="animate-spin-slow origin-[50px_70px]">
+<line stroke="currentColor" stroke-linecap="round" stroke-width="3" x1="50" x2="50" y1="70" y2="10"></line>
+<line stroke="currentColor" stroke-linecap="round" stroke-width="3" x1="50" x2="102" y1="70" y2="100"></line>
+<line stroke="currentColor" stroke-linecap="round" stroke-width="3" x1="50" x2="-2" y1="70" y2="100"></line>
+</g>
+</svg>
+<svg class="absolute bottom-[30%] right-[3%] w-20 h-36 text-white/35 hidden lg:block" fill="none" viewbox="0 0 100 200">
+<line stroke="currentColor" stroke-width="3" x1="50" x2="50" y1="200" y2="70"></line>
+<g class="animate-spin-slower origin-[50px_70px]">
+<line stroke="currentColor" stroke-linecap="round" stroke-width="3" x1="50" x2="50" y1="70" y2="10"></line>
+<line stroke="currentColor" stroke-linecap="round" stroke-width="3" x1="50" x2="102" y1="70" y2="100"></line>
+<line stroke="currentColor" stroke-linecap="round" stroke-width="3" x1="50" x2="-2" y1="70" y2="100"></line>
+</g>
+</svg>
+<!-- Rolling Dunes / Hills Layers -->
+<!-- Layer 1: Distant Dusk Ridge -->
+<svg class="absolute bottom-0 inset-x-0 w-full h-[48%] preserve-3d" fill="none" preserveaspectratio="none" viewbox="0 0 1440 380">
+<path d="M0,190 C320,110 520,230 840,160 C1140,90 1320,180 1440,160 L1440,380 L0,380 Z" fill="#0f2b2b" fill-opacity="0.85"></path>
+<path d="M0,230 C280,180 620,270 980,210 C1220,170 1360,230 1440,220 L1440,380 L0,380 Z" fill="#0b2424"></path>
+<path d="M0,270 C360,220 720,310 1100,260 C1280,240 1380,270 1440,265 L1440,380 L0,380 Z" fill="#071013"></path>
+</svg>
+<!-- Tiny Minimalist Hut and Tree on Left Slope -->
+<div class="absolute bottom-[24%] left-[7%] hidden md:block">
+<div class="relative w-8 h-10 bg-amber-100/90 rounded-t-sm shadow-md">
+<div class="w-11 h-4 -left-1.5 -top-3 absolute bg-teal-400 rounded-t-full"></div>
+<div class="w-3 h-4 bg-[#0a1818] rounded-t-full mx-auto mt-6"></div>
+</div>
+</div>
+<div class="absolute bottom-[17%] left-[24%] hidden md:block">
+<div class="w-14 h-14 bg-[#061717] rounded-full"></div>
+<div class="w-2.5 h-6 bg-[#040e0e] mx-auto -mt-1"></div>
+</div>
+</div>
+<!-- Hero Interactive Content Container -->
+<div class="relative z-10 max-w-7xl mx-auto px-6 sm:px-8 w-full">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+<!-- Left Text Column -->
+<div class="lg:col-span-7 xl:col-span-7 pt-4">
+<h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white mb-6 drop-shadow-sm">
+              Avijit Dhangar
+            </h1>
+<p class="text-xl sm:text-2xl text-slate-200 font-light leading-snug max-w-xl mb-4">
+              Eyes like shutter, mind like a lens: a thousand small wonders, noticed since.
+            </p>
+<p class="text-sm font-medium tracking-wide uppercase text-amber-300/90 mb-9">
+              Photographer, storyteller, curious mind
+            </p>
+<!-- Call to Actions -->
+<div class="flex flex-wrap items-center gap-4">
+<a class="inline-flex items-center justify-center px-7 py-3 rounded-full font-semibold text-sm text-slate-900 bg-white hover:bg-amber-100 hover:shadow-[0_0_24px_rgba(255,255,255,0.4)] transition-all transform active:scale-95" href="#manifesto">
+                Explore my world
+              </a>
+<a class="inline-flex items-center justify-center px-7 py-3 rounded-full font-medium text-sm text-white bg-white/10 hover:bg-white/20 border border-white/25 hover:border-white/50 backdrop-blur-sm transition-all transform active:scale-95" href="#about">
+                About me
+              </a>
+</div>
+</div>
+<!-- Right Column: Architectural Arch Portrait Frame -->
+<div class="lg:col-span-5 xl:col-span-5 flex justify-center lg:justify-end">
+<div class="relative group">
+<!-- Glow Effect behind the Arch -->
+<div class="absolute -inset-1.5 bg-gradient-to-t from-amber-500/40 via-teal-400/30 to-sky-400/20 rounded-[120px_120px_2rem_2rem] blur-xl opacity-75 group-hover:opacity-100 transition-opacity duration-700"></div>
+<!-- Main Arch Portal Container -->
+<div class="relative w-[280px] sm:w-[320px] md:w-[340px] h-[400px] sm:h-[450px] arch-hero overflow-hidden border-2 border-white/40 shadow-2xl bg-gradient-to-b from-[#8ed6c8] via-[#e5bc6e] to-[#d97706] p-1.5 flex flex-col justify-end">
+<!-- Inner Arch Background Composition: Artistic Photographer Silhouette -->
+<div class="relative w-full h-full arch-hero overflow-hidden bg-gradient-to-t from-[#1b1712] via-[#52442e]/70 to-transparent flex items-end justify-center">
+<!-- Silhouette illustration / artistic stand-in for portrait.jpg -->
+<div class="absolute inset-0 bg-cover bg-center mix-blend-overlay opacity-30" style="background-image: radial-gradient(circle at center, #ffffff 1px, transparent 1px); background-size: 16px 16px;"></div>
+<!-- Stylized artistic portrait figure -->
+<div class="relative z-10 flex flex-col items-center mb-6 text-center px-4">
+<div class="w-24 h-24 rounded-full border-2 border-white/30 backdrop-blur-md bg-white/10 flex items-center justify-center mb-4 shadow-lg group-hover:scale-105 transition-transform">
+<svg class="w-12 h-12 text-white/90" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path>
+<path d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path>
+</svg>
+</div>
+<span class="text-xs uppercase tracking-widest text-white/80 font-semibold px-3 py-1 bg-black/40 backdrop-blur-sm rounded-full border border-white/10">
+                      public/portrait.jpg
+                    </span>
+<span class="text-[11px] text-amber-200/90 mt-2 font-light">Avijit behind the viewfinder</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- END: HeroLandscapeSection -->
+<!-- BEGIN: ManifestoPhilosophySection -->
+<section class="py-24 sm:py-32 bg-[#071013] border-t border-white/5 relative z-10" data-purpose="philosophy-statement" id="manifesto">
+<div class="max-w-4xl mx-auto px-6 sm:px-8">
+<!-- Big Statement -->
+<h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white leading-snug mb-8">
+          Different mediums, same instinct: understand the system, find the story, tell it well.
+        </h2>
+<!-- Prose / Manifesto Body -->
+<div class="space-y-6 text-base sm:text-lg text-slate-300 font-normal leading-relaxed font-sans">
+<p>
+            I like data because it hides stories, design because it decides how a story is felt, and roleplaying because stories are better when several people tell them at once.
+          </p>
+<p class="text-slate-400">
+            This site is a small world rather than a portfolio. Some places are for reading, some for making, some just for wondering.
+          </p>
+</div>
+</div>
+</section>
+<!-- END: ManifestoPhilosophySection -->
+<!-- BEGIN: RealmPortalsSection -->
+<section class="pb-28 pt-8 bg-[#071013] relative z-10" data-purpose="realm-portals">
+<div class="max-w-7xl mx-auto px-6 sm:px-8">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 xl:gap-8">
+<!-- Portal 1: The Library -->
+<a class="group relative flex flex-col justify-between h-[360px] p-7 rounded-[9999px_9999px_1.5rem_1.5rem] bg-[#0284c7] hover:bg-[#0369a1] text-white transition-all duration-300 transform hover:-translate-y-2 shadow-xl overflow-hidden" data-purpose="portal-library" href="#library-content" id="library">
+<!-- Icon Arch Center Emblem -->
+<div class="pt-8 flex justify-center">
+<div class="w-20 h-20 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center group-hover:scale-110 transition-transform">
+<!-- Book Symbol -->
+<svg class="w-10 h-10 text-white" fill="currentColor" viewbox="0 0 24 24">
+<path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+</div>
+<!-- Portal Details -->
+<div>
+<h3 class="text-xl font-bold mb-1 tracking-tight">The Library</h3>
+<p class="text-xs text-sky-100 font-normal leading-relaxed">
+                Essays, notes and stories I have written.
+              </p>
+</div>
+</a>
+<!-- Portal 2: The Workshop -->
+<a class="group relative flex flex-col justify-between h-[360px] p-7 rounded-[9999px_9999px_1.5rem_1.5rem] bg-[#d97706] hover:bg-[#b45309] text-white transition-all duration-300 transform hover:-translate-y-2 shadow-xl overflow-hidden" data-purpose="portal-workshop" href="#workshop-content" id="workshop">
+<!-- Gear / Wheel Emblem -->
+<div class="pt-8 flex justify-center">
+<div class="w-20 h-20 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center group-hover:rotate-45 transition-transform duration-500">
+<svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M12 6V4m0 16v-2m8-8h-2M4 12H2m15.364-5.364l-1.414 1.414M6.05 17.95l-1.414 1.414m13.728 0l-1.414-1.414M6.05 6.05L4.636 4.636M12 16a4 4 0 100-8 4 4 0 000 8z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+</div>
+<!-- Portal Details -->
+<div>
+<h3 class="text-xl font-bold mb-1 tracking-tight">The Workshop</h3>
+<p class="text-xs text-amber-100 font-normal leading-relaxed">
+                Things I build, tinker with and tool up.
+              </p>
+</div>
+</a>
+<!-- Portal 3: Curiosities -->
+<a class="group relative flex flex-col justify-between h-[360px] p-7 rounded-[9999px_9999px_1.5rem_1.5rem] bg-[#db2777] hover:bg-[#be185d] text-white transition-all duration-300 transform hover:-translate-y-2 shadow-xl overflow-hidden" data-purpose="portal-curiosities" href="#colour-science" id="curiosities">
+<!-- Concentric Orbits Emblem -->
+<div class="pt-8 flex justify-center">
+<div class="w-20 h-20 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center group-hover:scale-110 transition-transform">
+<svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<circle cx="12" cy="12" r="9" stroke-dasharray="3 3" stroke-width="1.8"></circle>
+<circle cx="12" cy="12" r="5" stroke-width="2"></circle>
+<circle cx="12" cy="12" fill="currentColor" r="1.5"></circle>
+</svg>
+</div>
+</div>
+<!-- Portal Details -->
+<div>
+<h3 class="text-xl font-bold mb-1 tracking-tight">Curiosities</h3>
+<p class="text-xs text-pink-100 font-normal leading-relaxed">
+                Interests, rabbit holes and what I am exploring now.
+              </p>
+</div>
+</a>
+<!-- Portal 4: About -->
+<a class="group relative flex flex-col justify-between h-[360px] p-7 rounded-[9999px_9999px_1.5rem_1.5rem] bg-[#059669] hover:bg-[#047857] text-white transition-all duration-300 transform hover:-translate-y-2 shadow-xl overflow-hidden" data-purpose="portal-about" href="#about-section" id="about">
+<!-- Silhouette / Lens Emblem -->
+<div class="pt-8 flex justify-center">
+<div class="w-20 h-20 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center group-hover:scale-110 transition-transform">
+<svg class="w-10 h-10 text-white" fill="currentColor" viewbox="0 0 20 20">
+<path clip-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" fill-rule="evenodd"></path>
+</svg>
+</div>
+</div>
+<!-- Portal Details -->
+<div>
+<h3 class="text-xl font-bold mb-1 tracking-tight">About</h3>
+<p class="text-xs text-emerald-100 font-normal leading-relaxed">
+                The person behind the place.
+              </p>
+</div>
+</a>
+</div>
+</div>
+</section>
+<!-- END: RealmPortalsSection -->
+<!-- BEGIN: CurrentlyExploringSection -->
+<section class="py-12 bg-[#071013]" data-purpose="currently-exploring-banner" id="colour-science">
+<div class="max-w-5xl mx-auto px-6 sm:px-8">
+<!-- Gradient Capsule Card -->
+<div class="relative rounded-[2.5rem] bg-gradient-to-r from-[#d946ef] via-[#a855f7] to-[#6366f1] p-8 sm:p-12 text-white shadow-2xl overflow-hidden">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+<!-- Left Info Column -->
+<div class="lg:col-span-7">
+<span class="inline-block text-xs font-semibold tracking-wider uppercase text-pink-200 mb-2">
+                Currently exploring
+              </span>
+<h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4">
+                Colour Science
+              </h2>
+<p class="text-sm sm:text-base text-pink-100/90 leading-relaxed mb-6 font-light">
+                Building a playful space to explore how we see, measure and feel colour.
+              </p>
+<!-- Exploratory Points -->
+<ul class="space-y-2.5 text-sm text-pink-50 mb-8">
+<li class="flex items-center gap-3">
+<span class="w-1.5 h-1.5 rounded-full bg-pink-300"></span>
+<span>How screens and paint disagree</span>
+</li>
+<li class="flex items-center gap-3">
+<span class="w-1.5 h-1.5 rounded-full bg-pink-300"></span>
+<span>Colour in photography and editing</span>
+</li>
+<li class="flex items-center gap-3">
+<span class="w-1.5 h-1.5 rounded-full bg-pink-300"></span>
+<span>Palettes that feel like a place</span>
+</li>
+</ul>
+<!-- Follow Thread Button -->
+<a class="inline-flex items-center justify-center px-6 py-2.5 rounded-full font-semibold text-xs tracking-wide bg-white text-slate-900 hover:bg-pink-50 shadow-md hover:shadow-lg transition-all active:scale-95" href="#">
+                Follow the thread
+              </a>
+</div>
+<!-- Right Rhythmic Color Swatches (Arches) -->
+<div class="lg:col-span-5 flex items-end justify-center lg:justify-end gap-3 h-48 sm:h-56">
+<div class="w-12 sm:w-14 h-40 sm:h-48 arch-card bg-[#fb7185] shadow-lg hover:h-52 transition-all"></div>
+<div class="w-12 sm:w-14 h-44 sm:h-52 arch-card bg-[#fbbf24] shadow-lg hover:h-56 transition-all"></div>
+<div class="w-12 sm:w-14 h-40 sm:h-48 arch-card bg-[#34d399] shadow-lg hover:h-52 transition-all"></div>
+<div class="w-12 sm:w-14 h-48 sm:h-56 arch-card bg-[#38bdf8] shadow-lg hover:scale-105 transition-all"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- END: CurrentlyExploringSection -->
+<!-- BEGIN: PhotographsShowcaseSection -->
+<section class="py-20 bg-[#071013]" data-purpose="photographs-gallery-preview">
+<div class="max-w-7xl mx-auto px-6 sm:px-8">
+<!-- Section Header -->
+<div class="flex items-baseline justify-between mb-10">
+<h2 class="text-3xl font-bold tracking-tight text-white">Photographs</h2>
+<a class="text-xs sm:text-sm font-medium text-slate-400 hover:text-amber-400 transition-colors underline-offset-4 hover:underline" href="#">
+            More in Photography →
+          </a>
+</div>
+<!-- Arch-Framed Photo Preview Strip -->
+<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6">
+<!-- Photo Arch 1: Mist & Atmosphere -->
+<div class="group relative flex flex-col justify-end h-80 sm:h-96 arch-card overflow-hidden bg-sky-950 border border-white/10 shadow-lg hover:-translate-y-1.5 transition-all duration-300">
+<!-- Simulated atmospheric scenery tone -->
+<div class="absolute inset-0 bg-gradient-to-t from-[#0284c7] via-[#0369a1]/70 to-[#0c4a6e]/50 group-hover:scale-105 transition-transform duration-700"></div>
+<div class="relative z-10 p-5 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
+<span class="text-[11px] font-mono text-sky-300 block mb-1">gallery/01.jpg</span>
+<p class="text-xs font-semibold text-white">Highland Dawn</p>
+<p class="text-[10px] text-slate-300">Morning mist on cedar pine</p>
+</div>
+</div>
+<!-- Photo Arch 2: Golden Hour Architecture -->
+<div class="group relative flex flex-col justify-end h-80 sm:h-96 arch-card overflow-hidden bg-amber-950 border border-white/10 shadow-lg hover:-translate-y-1.5 transition-all duration-300">
+<div class="absolute inset-0 bg-gradient-to-t from-[#d97706] via-[#b45309]/80 to-[#78350f]/60 group-hover:scale-105 transition-transform duration-700"></div>
+<div class="relative z-10 p-5 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
+<span class="text-[11px] font-mono text-amber-300 block mb-1">gallery/02.jpg</span>
+<p class="text-xs font-semibold text-white">Concrete Solitude</p>
+<p class="text-[10px] text-slate-300">Angle, shadow and brutalism</p>
+</div>
+</div>
+<!-- Photo Arch 3: Neon Nightscape -->
+<div class="group relative flex flex-col justify-end h-80 sm:h-96 arch-card overflow-hidden bg-pink-950 border border-white/10 shadow-lg hover:-translate-y-1.5 transition-all duration-300">
+<div class="absolute inset-0 bg-gradient-to-t from-[#db2777] via-[#9d174d]/80 to-[#831843]/60 group-hover:scale-105 transition-transform duration-700"></div>
+<div class="relative z-10 p-5 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
+<span class="text-[11px] font-mono text-pink-300 block mb-1">gallery/03.jpg</span>
+<p class="text-xs font-semibold text-white">Tokyo Rain Mirror</p>
+<p class="text-[10px] text-slate-300">Wet asphalt reflections</p>
+</div>
+</div>
+<!-- Photo Arch 4: Deep Flora Forest -->
+<div class="group relative flex flex-col justify-end h-80 sm:h-96 arch-card overflow-hidden bg-emerald-950 border border-white/10 shadow-lg hover:-translate-y-1.5 transition-all duration-300">
+<div class="absolute inset-0 bg-gradient-to-t from-[#059669] via-[#047857]/80 to-[#064e3b]/60 group-hover:scale-105 transition-transform duration-700"></div>
+<div class="relative z-10 p-5 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
+<span class="text-[11px] font-mono text-emerald-300 block mb-1">gallery/04.jpg</span>
+<p class="text-xs font-semibold text-white">Moss Canopy</p>
+<p class="text-[10px] text-slate-300">Quiet forest trails</p>
+</div>
+</div>
+<!-- Photo Arch 5: Twilight Dusk Horizon -->
+<div class="group relative col-span-2 sm:col-span-1 flex flex-col justify-end h-80 sm:h-96 arch-card overflow-hidden bg-indigo-950 border border-white/10 shadow-lg hover:-translate-y-1.5 transition-all duration-300">
+<div class="absolute inset-0 bg-gradient-to-t from-[#6366f1] via-[#4338ca]/80 to-[#312e81]/60 group-hover:scale-105 transition-transform duration-700"></div>
+<div class="relative z-10 p-5 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
+<span class="text-[11px] font-mono text-indigo-300 block mb-1">gallery/05.jpg</span>
+<p class="text-xs font-semibold text-white">Blue Hour Tide</p>
+<p class="text-[10px] text-slate-300">Endless coastal waters</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- END: PhotographsShowcaseSection -->
+<!-- BEGIN: RecentlyAddedEditorialSection -->
+<section class="py-20 bg-[#071013] border-t border-white/5" data-purpose="recently-added-feed" id="library-content">
+<div class="max-w-4xl mx-auto px-6 sm:px-8">
+<!-- Header -->
+<div class="flex items-baseline justify-between mb-12">
+<h2 class="text-3xl font-bold tracking-tight text-white">Recently added</h2>
+<a class="text-xs sm:text-sm font-medium text-slate-400 hover:text-amber-400 transition-colors underline-offset-4 hover:underline" href="#">
+            See everything in the Library →
+          </a>
+</div>
+<!-- Editorial Articles List -->
+<div class="divide-y divide-white/10">
+<!-- Item 1: Triggered Lives -->
+<article class="py-8 group transition-colors">
+<div class="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 mb-2">
+<div class="flex items-center gap-3">
+<span class="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-pink-400">
+<span class="w-2 h-2 rounded-full bg-pink-500"></span>
+                  Story
+                </span>
+<h3 class="text-lg sm:text-xl font-bold text-white group-hover:text-amber-300 transition-colors">
+<a href="#">Triggered Lives</a>
+</h3>
+</div>
+<span class="text-xs font-mono text-slate-500">5 Apr 2026 · 10 parts</span>
+</div>
+<p class="text-sm sm:text-base text-slate-400 leading-relaxed max-w-2xl pl-0 sm:pl-16">
+              When a violent attack shatters their peaceful campus, a group of college friends is thrust into a world where their hidden abilities are no longer a secret. As they navigate the chaos, they...
+            </p>
+</article>
+<!-- Item 2: My Windows Isn't Like Yours -->
+<article class="py-8 group transition-colors">
+<div class="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 mb-2">
+<div class="flex items-center gap-3">
+<span class="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-sky-400">
+<span class="w-2 h-2 rounded-full bg-sky-500"></span>
+                  Article
+                </span>
+<h3 class="text-lg sm:text-xl font-bold text-white group-hover:text-amber-300 transition-colors">
+<a href="#">My Windows Isn't Like Yours</a>
+</h3>
+</div>
+<span class="text-xs font-mono text-slate-500">31 May 2025 · 4 min read</span>
+</div>
+<p class="text-sm sm:text-base text-slate-400 leading-relaxed max-w-2xl pl-0 sm:pl-16">
+              Windows 11 might look sleek, but it's still missing a lot under the hood. From clunky search to inconsistent settings, it's clear that the default setup needs help.
+            </p>
+</article>
+<!-- Item 3: System of Implementation -->
+<article class="py-8 group transition-colors">
+<div class="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 mb-2">
+<div class="flex items-center gap-3">
+<span class="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-sky-400">
+<span class="w-2 h-2 rounded-full bg-sky-500"></span>
+                  Article
+                </span>
+<h3 class="text-lg sm:text-xl font-bold text-white group-hover:text-amber-300 transition-colors">
+<a href="#">System of Implementation</a>
+</h3>
+</div>
+<span class="text-xs font-mono text-slate-500">31 May 2025 · 5 min read</span>
+</div>
+<p class="text-sm sm:text-base text-slate-400 leading-relaxed max-w-2xl pl-0 sm:pl-16">
+              I've been there. AI planners, minimalist journals, apps promising to revolutionize my life. Here's what I learned: you don't need a perfect system, you need one that evolves with you.
+            </p>
+</article>
+<!-- Item 4: System of Learning -->
+<article class="py-8 group transition-colors">
+<div class="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 mb-2">
+<div class="flex items-center gap-3">
+<span class="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-sky-400">
+<span class="w-2 h-2 rounded-full bg-sky-500"></span>
+                  Article
+                </span>
+<h3 class="text-lg sm:text-xl font-bold text-white group-hover:text-amber-300 transition-colors">
+<a href="#">System of Learning</a>
+</h3>
+</div>
+<span class="text-xs font-mono text-slate-500">31 May 2025 · 3 min read</span>
+</div>
+<p class="text-sm sm:text-base text-slate-400 leading-relaxed max-w-2xl pl-0 sm:pl-16">
+              Once you've gained clarity on your goals through honest self-reflection, the next step is building a system to actually learn and develop the skills you need. The System of Learning is...
+            </p>
+</article>
+</div>
+</div>
+</section>
+<!-- END: RecentlyAddedEditorialSection -->
+<!-- BEGIN: QuoteSunsetBannerSection -->
+<section class="relative py-28 sm:py-36 bg-gradient-to-b from-[#2a173b] via-[#9f3e58] to-[#f59e0b] overflow-hidden text-center text-white" data-purpose="inspirational-quote-banner">
+<!-- Ambient overlay -->
+<div class="absolute inset-0 bg-black/10 backdrop-blur-[0.5px]"></div>
+<div class="relative z-10 max-w-3xl mx-auto px-6 sm:px-8">
+<!-- Quoted Thought -->
+<blockquote class="mb-5">
+<p class="font-serif italic text-2xl sm:text-3xl md:text-4xl text-white/95 leading-relaxed tracking-wide drop-shadow-md">
+            “The passions we cannot contain, end up defining us.”
+          </p>
+</blockquote>
+<cite class="block text-xs uppercase tracking-widest text-amber-200/90 font-medium mb-12 not-italic">
+          Simon Van Booy
+        </cite>
+<p class="text-sm sm:text-base text-white/90 font-light mb-8">
+          If something here sparks a thought, I would like to hear it.
+        </p>
+<!-- Action Links -->
+<div class="flex items-center justify-center gap-4">
+<a class="px-7 py-2.5 rounded-full text-xs sm:text-sm font-semibold text-slate-900 bg-white hover:bg-amber-100 shadow-lg hover:shadow-xl transition-all transform active:scale-95" href="mailto:hello@example.com">
+            Say hello
+          </a>
+<a class="px-7 py-2.5 rounded-full text-xs sm:text-sm font-medium text-white bg-white/20 hover:bg-white/30 border border-white/30 backdrop-blur-sm shadow-lg transition-all transform active:scale-95" href="https://github.com" rel="noopener noreferrer" target="_blank">
+            GitHub
+          </a>
+</div>
+</div>
+</section>
+<!-- END: QuoteSunsetBannerSection -->
+</main>
+<!-- BEGIN: SiteFooter -->
+<footer class="bg-[#050c0e] py-14 border-t border-white/5" data-purpose="site-footer">
+<div class="max-w-7xl mx-auto px-6 sm:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
+<!-- Left: Identity & Tagline -->
+<div class="text-center md:text-left">
+<h4 class="text-sm font-bold text-white tracking-wide mb-1">Avijit Dhangar</h4>
+<p class="text-xs text-slate-400 max-w-md">
+          Eyes like shutter, mind like a lens: a thousand small wonders, noticed since.
+        </p>
+</div>
+<!-- Right: Footer Navigation Links -->
+<nav class="flex items-center gap-6 text-xs text-slate-400 font-medium" data-purpose="footer-links">
+<a class="hover:text-white transition-colors" href="#manifesto">Contact</a>
+<a class="hover:text-white transition-colors" href="https://github.com" rel="noopener noreferrer" target="_blank">GitHub</a>
+<a class="hover:text-white transition-colors" href="#">RSS</a>
+</nav>
+</div>
+</footer>
+<!-- END: SiteFooter -->
+<!-- BEGIN: InteractiveScripts -->
+<script data-purpose="header-scroll-enhancement">
+    // Add dynamic shadow/opacity to nav on scroll
+    window.addEventListener('scroll', () => {
+      const header = document.querySelector('header');
+      if (window.scrollY > 20) {
+        header.classList.add('bg-[#071013]/90', 'shadow-lg');
+      } else {
+        header.classList.remove('bg-[#071013]/90', 'shadow-lg');
+      }
+    });
+  </script>
+<!-- END: InteractiveScripts -->
+</body></html>

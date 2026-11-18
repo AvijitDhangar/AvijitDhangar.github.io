@@ -1,0 +1,51 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getGarden } from '../../lib/garden.mjs';
+import { fmtDate } from '../../lib/format.mjs';
+import { withBase } from '../../lib/url.mjs';
+export function getStaticPaths() { return getGarden().series.map((s) => ({ params: { slug: s.slug }, props: { s } })); }
+const { s } = Astro.props;
+const blurb = s.notes.find((n) => /blurb/i.test(n.title));
+const cover = s.slug === 'triggered-lives' ? withBase('covers/triggered-lives.png') : null;
+const totalMinutes = s.notes.reduce((acc, n) => acc + (n.readingMinutes || 0), 0);
+---
+<Base title={s.title} description={blurb?.excerpt} place="library">
+  <div class="wrap series-hub">
+    <a class="back" href={withBase('library/')} style="margin-top: 1.5rem; display: inline-block;">← The Library</a>
+    <div class="series-showcase">
+      {cover && (
+        <div class="series-cover-wrapper">
+          <img src={cover} alt={`${s.title} Book Cover`} class="series-cover-art" />
+        </div>
+      )}
+      <div class="series-showcase-text">
+        <span class="series-badge">Novel · {s.notes.length} Chapters</span>
+        <h1>{s.title}</h1>
+        {blurb && <p class="series-blurb-lead">{blurb.excerpt}</p>}
+        <div class="series-meta-row">
+          <span>{totalMinutes} min total reading time</span>
+          <span>·</span>
+          <span>By Avijit Dhangar</span>
+        </div>
+        {blurb && (
+          <div class="series-actions">
+            <a class="btn" href={blurb.url}>Start Reading Prologue</a>
+          </div>
+        )}
+      </div>
+    </div>
+
+    <div class="series-toc">
+      <h2 style="margin-bottom: 1.25rem;">Table of Contents</h2>
+      <ol class="rows" style="list-style:none;padding:0">
+        {s.notes.map((n, idx) => (
+          <li class="row t-story">
+            <span class="kind">{/blurb/i.test(n.title) ? 'Start here' : `Chapter ${String(idx).padStart(2, '0')}`}</span>
+            <div><h3><a href={n.url}>{/blurb/i.test(n.title) ? n.title : (n.subtitle || n.title)}</a></h3></div>
+            <span class="when">{[fmtDate(n.date), `${n.readingMinutes} min`].filter(Boolean).join(' · ')}</span>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </div>
+</Base>

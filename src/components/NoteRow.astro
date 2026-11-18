@@ -1,0 +1,18 @@
+---
+import { fmtDate, cap } from '../lib/format.mjs';
+import { slugify } from '../lib/garden.mjs';
+import { withBase } from '../lib/url.mjs';
+const { item, topics = true, filter = false } = Astro.props;
+const type = item.kind === 'series' ? 'series' : item.type;
+const label = item.label || (item.kind === 'series' ? 'Story' : cap(item.type));
+const extra = item.kind === 'series' ? `${item.count} parts` : item.readingMinutes ? `${item.readingMinutes} min read` : '';
+---
+<li class={`row t-${type}`} data-type={filter ? type : undefined} data-topics={filter ? (item.topics || []).map(slugify).join(' ') : undefined} data-text={filter ? `${item.title} ${item.description || ''} ${(item.topics || []).join(' ')}`.toLowerCase() : undefined}>
+  <span class="kind">{label}</span>
+  <div>
+    <h3><a href={item.url}>{item.title}</a></h3>
+    {item.description && <p>{item.description}</p>}
+    {topics && item.topics?.length > 0 && <div class="chips" style="margin-top:.5rem">{item.topics.map((t) => <a class="chip" href={`${withBase('curiosities/' + slugify(t) + '/')}`}>{t}</a>)}</div>}
+  </div>
+  <span class="when">{[fmtDate(item.date), extra].filter(Boolean).join(' · ')}</span>
+</li>

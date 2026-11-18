@@ -1,0 +1,167 @@
+---
+// Solarpunk landscape: Sun moved to upper right corner and scaled down.
+// Center sky opened up with spacious rolling hills and delicate flying story birds.
+// Church/spire completely removed.
+const turbines = [
+  [160, 478, 0.52, 't1'],
+  [230, 490, 0.45, 't2 slow'],
+  [680, 566, 0.54, 't3'],
+  [1250, 474, 0.48, 't4 slow']
+];
+const blade = 'M0 0 L-3.5 -52 L3.5 -52 Z';
+---
+<svg class="scene" viewBox="0 0 1440 720" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">
+  <defs>
+    <!-- Warm Sun Glow & Core -->
+    <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="var(--sun-edge)" stop-opacity=".6" />
+      <stop offset="100%" stop-color="var(--sun-edge)" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="sunCore" cx=".35" cy=".35">
+      <stop offset="0%" stop-color="var(--sun-core)" />
+      <stop offset="100%" stop-color="var(--sun-edge)" />
+    </radialGradient>
+
+    <!-- Warm Evening Moon Glow & Crescent -->
+    <radialGradient id="moonGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fffbeb" stop-opacity="0.55" />
+      <stop offset="40%" stop-color="#fef08a" stop-opacity="0.22" />
+      <stop offset="100%" stop-color="#fef08a" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="moonCrescent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="60%" stop-color="#fefce8" />
+      <stop offset="100%" stop-color="#fef08a" />
+    </linearGradient>
+
+    <!-- Cloud Gradients (Day & Night Adaptive) -->
+    <linearGradient id="cloudGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="var(--cloud-top)" />
+      <stop offset="55%" stop-color="var(--cloud-mid)" />
+      <stop offset="100%" stop-color="var(--cloud-base)" />
+    </linearGradient>
+    <linearGradient id="cloudHighlightGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="var(--cloud-highlight)" />
+      <stop offset="100%" stop-color="var(--cloud-highlight)" stop-opacity="0" />
+    </linearGradient>
+
+    <!-- Ode to Stories: Golden Spark Glow -->
+    <radialGradient id="storyGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fef08a" stop-opacity="0.8" />
+      <stop offset="50%" stop-color="#f59e0b" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#f59e0b" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <!-- Celestial: Sun in Light Mode, Moon in Dark Mode (At user's chosen position) -->
+  <g id="celestial">
+    <!-- Sun (Visible in Light Mode) -->
+    <g class="sun-element">
+      <circle cx="1250" cy="125" r="120" fill="url(#sunGlow)" />
+      <circle cx="1250" cy="125" r="36" fill="url(#sunCore)" />
+    </g>
+
+    <!-- Moon (Visible in Dark Mode: Clean, glowing evening twilight crescent & sphere) -->
+    <g class="moon-element">
+      <circle cx="1250" cy="125" r="95" fill="url(#moonGlow)" />
+      <!-- Moon Sphere Disc (Earthshine) -->
+      <circle cx="1250" cy="125" r="36" fill="rgba(255, 255, 255, 0.08)" stroke="rgba(255, 255, 255, 0.15)" stroke-width="0.8" />
+      <!-- Luminous Crescent Moon -->
+      <path d="M 1250 89 A 36 36 0 0 1 1250 161 A 25 36 0 0 0 1250 89 Z" fill="url(#moonCrescent)" />
+      <!-- Crescent Specular Rim -->
+      <!--<path d="M 1250 91 A 34 34 0 0 1 1250 159" fill="none" stroke="#ffffff" stroke-width="1" opacity="0.85" />-->
+    </g>
+  </g>
+
+  <!-- Stylized Billowy Clouds (Asymmetrical, organic curves with soft volumetric lighting) -->
+  <g class="clouds-group">
+    <!-- Cloud 1: Asymmetrical high framing cloud on upper left -->
+    <g class="cloud c1">
+      <path d="M 130 76 C 115 76, 110 68, 122 58 C 132 46, 155 48, 168 56 C 182 34, 222 30, 242 46 C 258 40, 280 50, 276 66 C 285 74, 275 76, 260 76 Z" fill="url(#cloudGrad)" />
+      <path d="M 132 60 C 140 50, 158 50, 168 56 C 184 38, 220 34, 240 48 C 255 42, 272 52, 272 64" fill="none" stroke="url(#cloudHighlightGrad)" stroke-width="2.2" opacity="0.75" class="cloud-highlight" />
+    </g>
+
+    <!-- Cloud 2: Asymmetrical mid-sky drifting cumulus -->
+    <g class="cloud c2">
+      <path d="M 590 110 C 575 110, 570 98, 588 88 C 598 75, 625 72, 642 82 C 658 58, 698 52, 726 68 C 745 42, 792 46, 810 74 C 830 76, 842 92, 832 104 C 838 110, 825 110, 810 110 Z" fill="url(#cloudGrad)" />
+      <path d="M 592 90 C 604 78, 626 75, 642 84 C 660 62, 696 56, 724 70 C 746 46, 790 50, 806 76 C 824 78, 836 92, 830 102" fill="none" stroke="url(#cloudHighlightGrad)" stroke-width="2.6" opacity="0.7" class="cloud-highlight" />
+    </g>
+
+    <!-- Cloud 3: Trailing cloud comfortably below and away from sun/moon -->
+    <g class="cloud c3">
+      <path d="M 940 265 C 925 265, 920 254, 935 244 C 945 232, 970 228, 988 238 C 1002 218, 1045 215, 1068 230 C 1088 226, 1112 238, 1108 252 C 1120 262, 1110 265, 1095 265 Z" fill="url(#cloudGrad)" />
+      <path d="M 942 246 C 954 234, 974 230, 988 240 C 1004 222, 1042 218, 1065 232 C 1084 228, 1104 238, 1102 250" fill="none" stroke="url(#cloudHighlightGrad)" stroke-width="2.2" opacity="0.7" class="cloud-highlight" />
+    </g>
+  </g>
+
+  <!-- Far Mountain Hill -->
+  <path d="M0 470 C180 410 340 440 520 470 S860 425 1040 458 S1320 425 1440 450 V720 H0Z" fill="var(--hill-far)" />
+
+  <!-- Standardized Distant Wind Turbines -->
+  {turbines.map(([x, y, s, c]) => (
+    <g transform={`translate(${x} ${y}) scale(${s})`} fill="#fff" stroke="none">
+      <rect x="-2.5" y="-96" width="5" height="96" fill="#f1f8f5" opacity="0.92" />
+      <g transform="translate(0 -96)">
+        <g class={`rotor ${c}`}>
+          <circle r="54" fill="#fff" opacity="0" pointer-events="none" />
+          <path d={blade} fill="#ffffff" opacity="0.95" />
+          <path d={blade} transform="rotate(120)" fill="#ffffff" opacity="0.95" />
+          <path d={blade} transform="rotate(240)" fill="#ffffff" opacity="0.95" />
+        </g>
+        <circle r="4.5" fill="#d8ebe3" />
+      </g>
+    </g>
+  ))}
+
+  <!-- Middle Hill -->
+  <path d="M0 545 C200 480 380 505 560 538 S900 500 1100 532 S1340 505 1440 522 V720 H0Z" fill="var(--hill-mid)" />
+
+  <!-- Ode to Stories: Delicate Flying Origami Birds & Pages (Grouped gracefully in open right-hand sky) -->
+  <g class="flying-stories" fill="#ffffff" opacity="0.88">
+    <!-- Story Crane 1 (Mid-right sky) -->
+    <g class="story-drift s1" transform="translate(900 290)">
+      <polygon points="0,0 -8,-7 -3,3" fill="#ffffff" opacity="0.95" />
+      <polygon points="0,0 8,-6 2,3" fill="#e2e8f0" opacity="0.85" />
+      <circle cx="0" cy="0" r="1.2" fill="#fbbf24" />
+    </g>
+    <!-- Story Crane 2 (Ascending toward sun) -->
+    <g class="story-drift s2" transform="translate(1040 240)">
+      <polygon points="0,0 -10,-9 -4,4" fill="#ffffff" opacity="0.95" />
+      <polygon points="0,0 11,-8 3,4" fill="#cbd5e1" opacity="0.85" />
+      <circle cx="0" cy="0" r="1.5" fill="#fef08a" />
+    </g>
+    <!-- Drifting manuscript parchment -->
+    <g class="story-drift s3" transform="translate(1140 180)">
+      <polygon points="0,0 7,-4 11,6 4,10" fill="#fef9c3" opacity="0.9" stroke="#fef08a" stroke-width="0.5" />
+      <line x1="2" y1="2" x2="6" y2="0" stroke="#d97706" stroke-width="0.5" opacity="0.6" />
+      <line x1="3" y1="5" x2="8" y2="3" stroke="#d97706" stroke-width="0.5" opacity="0.6" />
+    </g>
+    <!-- Crane 4 (Basking near sun glow) -->
+    <g class="story-drift s4" transform="translate(1080 150)">
+      <polygon points="0,0 9,-3 12,9 3,12" fill="#fef08a" opacity="0.85" />
+      <circle cx="6" cy="4" r="10" fill="url(#storyGlow)" opacity="0.3" />
+    </g>
+    <!-- Crane 5 (Upper right) -->
+    <g class="story-drift s5" transform="translate(1220 130)">
+      <polygon points="0,0 -7,-6 -2,2" fill="#ffffff" opacity="0.9" />
+      <polygon points="0,0 8,-5 2,2" fill="#e2e8f0" opacity="0.8" />
+    </g>
+    <!-- Gentle Golden Motes near sun sky -->
+    <circle cx="940" cy="270" r="1.6" fill="#fef08a" opacity="0.75" />
+    <circle cx="1060" cy="210" r="1.4" fill="#fef08a" opacity="0.8" />
+    <circle cx="1180" cy="165" r="1.8" fill="#fef08a" opacity="0.7" />
+  </g>
+
+  <!-- Near Hill -->
+  <path d="M0 615 C260 560 520 595 760 612 S1200 585 1440 602 V720 H0Z" fill="var(--hill-near)" />
+
+  <!-- Trees & Foliage -->
+  <g fill="var(--hill-front)">
+    <g><rect x="402" y="560" width="8" height="40" /><circle cx="406" cy="548" r="30" /><circle cx="388" cy="568" r="20" /><circle cx="426" cy="566" r="22" /></g>
+    <g><rect x="1100" y="552" width="8" height="40" /><circle cx="1104" cy="540" r="26" /><circle cx="1122" cy="560" r="18" /></g>
+    <g><rect x="1330" y="560" width="8" height="40" /><circle cx="1334" cy="548" r="30" /><circle cx="1314" cy="566" r="20" /></g>
+  </g>
+
+  <!-- Foreground Ridge -->
+  <path d="M0 688 C300 640 700 694 1000 668 S1300 662 1440 676 V720 H0Z" fill="var(--hill-front)" />
+</svg>

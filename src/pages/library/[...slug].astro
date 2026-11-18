@@ -1,0 +1,13 @@
+---
+import NotePage from '../../components/NotePage.astro';
+import { getGarden } from '../../lib/garden.mjs';
+import { withBase } from '../../lib/url.mjs';
+export function getStaticPaths() {
+  const g = getGarden();
+  return g.notes.filter((n) => n.kind === 'writing').map((note) => ({ params: { slug: note.slug }, props: { note } }));
+}
+const { note } = Astro.props;
+const g = getGarden();
+const related = g.libraryItems.filter((i) => i.kind !== 'series' && i.id !== note.id && !note.series && i.topics.some((t) => note.topics.includes(t))).slice(0, 4);
+---
+<NotePage note={note} related={related} place="library" back={{ href: withBase('library/'), label: 'The Library' }} />

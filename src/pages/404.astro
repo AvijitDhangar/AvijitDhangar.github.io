@@ -1,0 +1,7 @@
+---
+import Base from '../layouts/Base.astro';
+import { withBase } from '../lib/url.mjs';
+---
+<Base title="Not found" place="home">
+  <div class="narrow" style="padding:5rem 0 2rem"><h1>This path leads nowhere yet</h1><p>The page may have moved, or it may be a note that has not been written. Try the <a href={withBase('library/')}>Library</a> or search with Ctrl K.</p></div>
+</Base>
