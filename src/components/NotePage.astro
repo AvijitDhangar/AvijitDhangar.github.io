@@ -16,7 +16,17 @@ const related = Astro.props.related || [];
       <aside class="chapter-sidebar">
         <div class="chapter-card">
           <div class="chapter-card-header">
-            <h3>{info.total === 9 ? 'All Nine Chapters' : `All ${info.total} Chapters`}</h3>
+            <div class="chapter-card-title-group">
+              <h3>{info.total === 9 ? 'All Nine Chapters' : `All ${info.total} Chapters`}</h3>
+              {info.position && (
+                <div class="book-progress-box">
+                  <div class="book-progress-track" title={`${Math.round((info.position / info.total) * 100)}% of book complete`}>
+                    <div class="book-progress-fill" style={`width: ${Math.round((info.position / info.total) * 100)}%`}></div>
+                  </div>
+                  <span class="book-progress-label">Chapter {info.position} of {info.total} · {Math.round((info.position / info.total) * 100)}% of book</span>
+                </div>
+              )}
+            </div>
             {info.cover && (
               <a href={withBase(`series/${info.slug}/`)} title={`View ${info.title} details`} class="sidebar-cover-thumb">
                 <img src={info.cover} alt={info.title} />
@@ -24,17 +34,20 @@ const related = Astro.props.related || [];
             )}
           </div>
           <ol class="chapter-list">
-            {info.chapters.map((ch) => (
-              <li class={`chapter-item ${ch.isCurrent ? 'active' : ''}`}>
-                <a href={ch.url} class="chapter-link">
-                  <div class="chapter-meta">
-                    <span class="chapter-num">{ch.isBlurb ? 'Start here' : `Chapter ${String(ch.chapterNumber).padStart(2, '0')}`}</span>
-                    <span class="chapter-read-time">{ch.readingMinutes} min read</span>
-                  </div>
-                  <div class="chapter-title-text">{ch.isBlurb ? ch.title : (ch.subtitle || ch.title)}</div>
-                </a>
-              </li>
-            ))}
+            {info.chapters.map((ch) => {
+              const isPast = ch.chapterNumber && info.position && ch.chapterNumber < info.position;
+              return (
+                <li class={`chapter-item ${ch.isCurrent ? 'active' : ''} ${isPast ? 'completed' : ''}`}>
+                  <a href={ch.url} class="chapter-link">
+                    <div class="chapter-meta">
+                      <span class="chapter-num">{isPast ? '✓ ' : ''}Chapter {String(ch.chapterNumber).padStart(2, '0')}</span>
+                      <span class="chapter-read-time">{ch.readingMinutes} min read</span>
+                    </div>
+                    <div class="chapter-title-text">{ch.subtitle || ch.title}</div>
+                  </a>
+                </li>
+              );
+            })}
           </ol>
         </div>
       </aside>
@@ -44,15 +57,6 @@ const related = Astro.props.related || [];
         <article class="chapter-article">
           <div class="chapter-top-bar">
             <a class="back" href={withBase(`series/${info.slug}/`)}>← {info.title}</a>
-            <div class="chapter-top-meta">
-              {info.position ? (
-                <span>Chapter {String(info.position).padStart(2, '0')} of {String(info.total).padStart(2, '0')}</span>
-              ) : (
-                <span>Prologue</span>
-              )}
-              {note.date && <span> · {fmtDate(note.date)}</span>}
-              <span> · {note.readingMinutes} min read</span>
-            </div>
           </div>
 
           <h1 class="chapter-heading">{note.subtitle ? note.subtitle : note.title}</h1>

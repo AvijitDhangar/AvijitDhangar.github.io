@@ -3,11 +3,15 @@ import Base from '../../layouts/Base.astro';
 import { getGarden } from '../../lib/garden.mjs';
 import { fmtDate } from '../../lib/format.mjs';
 import { withBase } from '../../lib/url.mjs';
-export function getStaticPaths() { return getGarden().series.map((s) => ({ params: { slug: s.slug }, props: { s } })); }
+
+export function getStaticPaths() {
+  return getGarden().series.map((s) => ({ params: { slug: s.slug }, props: { s } }));
+}
 const { s } = Astro.props;
-const blurb = s.notes.find((n) => /blurb/i.test(n.title));
+const blurb = s.blurb;
 const cover = s.slug === 'triggered-lives' ? withBase('covers/triggered-lives.png') : null;
 const totalMinutes = s.notes.reduce((acc, n) => acc + (n.readingMinutes || 0), 0);
+const firstChapter = s.notes[0];
 ---
 <Base title={s.title} description={blurb?.excerpt} place="library">
   <div class="wrap series-hub">
@@ -21,15 +25,19 @@ const totalMinutes = s.notes.reduce((acc, n) => acc + (n.readingMinutes || 0), 0
       <div class="series-showcase-text">
         <span class="series-badge">Novel · {s.notes.length} Chapters</span>
         <h1>{s.title}</h1>
-        {blurb && <p class="series-blurb-lead">{blurb.excerpt}</p>}
         <div class="series-meta-row">
+          <span>{s.notes.length} chapters</span>
+          <span>·</span>
           <span>{totalMinutes} min total reading time</span>
           <span>·</span>
           <span>By Avijit Dhangar</span>
         </div>
         {blurb && (
-          <div class="series-actions">
-            <a class="btn" href={blurb.url}>Start Reading Prologue</a>
+          <div class="series-blurb-full prose" set:html={blurb.html} />
+        )}
+        {firstChapter && (
+          <div class="series-actions" style="margin-top: 1.5rem;">
+            <a class="btn" href={firstChapter.url}>Start reading</a>
           </div>
         )}
       </div>
@@ -40,8 +48,8 @@ const totalMinutes = s.notes.reduce((acc, n) => acc + (n.readingMinutes || 0), 0
       <ol class="rows" style="list-style:none;padding:0">
         {s.notes.map((n, idx) => (
           <li class="row t-story">
-            <span class="kind">{/blurb/i.test(n.title) ? 'Start here' : `Chapter ${String(idx).padStart(2, '0')}`}</span>
-            <div><h3><a href={n.url}>{/blurb/i.test(n.title) ? n.title : (n.subtitle || n.title)}</a></h3></div>
+            <span class="kind">{`Chapter ${String(idx + 1).padStart(2, '0')}`}</span>
+            <div><h3><a href={n.url}>{n.subtitle || n.title}</a></h3></div>
             <span class="when">{[fmtDate(n.date), `${n.readingMinutes} min`].filter(Boolean).join(' · ')}</span>
           </li>
         ))}

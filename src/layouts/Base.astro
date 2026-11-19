@@ -31,7 +31,7 @@ const links = [
     <meta name="color-scheme" content="light dark" />
     <script is:inline>
       try {
-        var t = localStorage.getItem('theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        var t = localStorage.getItem('theme') || 'dark';
         document.documentElement.dataset.theme = t;
         document.documentElement.style.backgroundColor = t === 'dark' ? '#071013' : '#f1f8f3';
       } catch (e) {}
@@ -75,6 +75,13 @@ const links = [
       <input type="search" placeholder="Search writing, rabbit holes, projects…" aria-label="Search" autocomplete="off" />
       <ul></ul>
     </dialog>
+    <button class="reading-pill" id="reading-pill" type="button" aria-label="Reading progress. Click to scroll to top." title="Scroll to top">
+      <svg class="progress-ring" viewBox="0 0 36 36" aria-hidden="true">
+        <path class="ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+        <path class="ring-fill" id="ring-fill" stroke-dasharray="100, 100" stroke-dashoffset="100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+      </svg>
+      <span class="reading-pill-text" id="reading-pill-text">0%</span>
+    </button>
   </body>
 </html>
 <script>

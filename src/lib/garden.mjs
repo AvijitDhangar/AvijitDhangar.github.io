@@ -25,17 +25,18 @@ const IMG_DIR = path.join(ROOT, 'public/garden-img');
 const IMG_EXT = /\.(png|jpe?g|gif|webp|avif|svg)$/i;
 const WRITING = ['essay', 'article', 'note', 'reflection', 'guide', 'review', 'story', 'resource', 'resources'];
 const HUE_PALETTE = [
-  '#0d9488', // teal
-  '#ea580c', // orange
-  '#6366f1', // indigo
-  '#e11d48', // rose
-  '#0284c7', // sky
-  '#d946ef', // fuchsia
-  '#16a34a', // emerald
-  '#f59e0b', // amber
-  '#8b5cf6', // violet
-  '#ec4899', // pink
-  '#0891b2', // cyan
+  '#1f9d6a', // original emerald
+  '#f97316', // original bright orange
+  '#3b82f6', // original sky/blue
+  '#ec4899', // original pink
+  '#f59e0b', // original amber
+  '#8b5cf6', // original purple/violet
+  '#06b6d4', // original cyan
+  '#d946ef', // original fuchsia
+  '#10b981', // original mint
+  '#6366f1', // original indigo
+  '#14b8a6', // bright teal
+  '#fb7185', // bright rose
 ];
 function getHash(name) {
   let hash = 0;
@@ -198,6 +199,7 @@ function build() {
   for (const n of notes) {
     const isTopic = n.type === 'topic' || n.type === 'interest';
     const isRabbitHole = n.type === 'rabbit-hole' || n.type === 'rabbithole' || n.type === 'rabbit_hole' || n.type === 'exploration' || n.tags?.includes('rabbit-hole') || n.tags?.includes('rabbithole') || n.tags?.includes('rabbit_hole') || n.tags?.includes('exploration');
+    const isBlurb = /blurb/i.test(n.title);
     let base = slugify(n.customSlug ? String(n.customSlug).split('/').filter(Boolean).pop() : (isTopic ? (n.topics[0] || n.title) : n.title));
     if (!base) base = 'note';
     const scope = isTopic ? 'i:' : isRabbitHole ? 'e:' : 'w:';
@@ -206,8 +208,11 @@ function build() {
     while (used.has(scope + slug)) slug = `${base}-${k++}`;
     used.add(scope + slug);
     n.slug = slug;
-    n.kind = isTopic ? 'topic' : isRabbitHole ? 'rabbithole' : 'writing';
+    n.kind = isTopic ? 'topic' : isRabbitHole ? 'rabbithole' : isBlurb ? 'blurb' : 'writing';
     if (isRabbitHole) n.type = 'rabbit-hole';
+    if (isBlurb) {
+      n.body = n.body.replace(/\[\[.*?\]\]/g, '').trim();
+    }
   }
 
   // ---- topics ---------------------------------------------------------------------
@@ -352,14 +357,20 @@ function build() {
   const listed = (n) => !n.isIndex && n.status !== 'archived' && n.kind !== 'topic';
   const writing = notes.filter((n) => n.kind === 'writing' && listed(n));
   const seriesMap = new Map();
-  for (const n of notes.filter((x) => x.series && x.kind === 'writing')) {
-    const s = seriesMap.get(n.series) || { title: n.series, slug: slugify(n.series), notes: [], index: null };
-    n.isIndex ? (s.index = n) : s.notes.push(n);
+  for (const n of notes.filter((x) => x.series)) {
+    const s = seriesMap.get(n.series) || { title: n.series, slug: slugify(n.series), notes: [], index: null, blurb: null };
+    if (n.isIndex) {
+      s.index = n;
+    } else if (/blurb/i.test(n.title)) {
+      s.blurb = n;
+    } else {
+      s.notes.push(n);
+    }
     seriesMap.set(n.series, s);
   }
   const series = [...seriesMap.values()].map((s) => ({ ...s, notes: s.notes.sort((a, b) => a.order - b.order || a.title.localeCompare(b.title)) }));
   for (const s of series) {
-    const chapters = s.notes.filter((n) => !/blurb/i.test(n.title));
+    const chapters = s.notes;
     const formatNote = (note) => {
       if (!note) return null;
       const chNum = chapters.indexOf(note) + 1;
@@ -372,7 +383,6 @@ function build() {
         readingMinutes: note.readingMinutes,
         date: note.date,
         chapterNumber: chNum > 0 ? chNum : null,
-        isBlurb: /blurb/i.test(note.title)
       };
     };
 
@@ -396,8 +406,8 @@ function build() {
   // library list shows each series once (as a single entry) plus standalone writing
   const seriesEntry = (s) => ({ kind: 'series', title: s.title, slug: s.slug, url: withBase(`series/${s.slug}/`), type: 'story', count: s.notes.length,
     cover: s.slug === 'triggered-lives' ? withBase('covers/triggered-lives.png') : null,
-    description: (s.notes.find((n) => /blurb/i.test(n.title)) || s.notes[0])?.excerpt || '', date: s.notes.map((n) => n.date).filter(Boolean).sort().pop() || null,
-    topics: [...new Set(s.notes.flatMap((n) => n.topics))], featured: s.notes.some((n) => n.featured), readingMinutes: s.notes.reduce((a, n) => a + n.readingMinutes, 0) });
+    description: s.blurb?.excerpt || s.notes[0]?.excerpt || '', date: s.notes.map((n) => n.date).filter(Boolean).sort().pop() || null,
+    topics: [...new Set(s.notes.flatMap((n) => n.topics))], featured: s.notes.some((n) => n.featured), readingMinutes: s.notes.reduce((a, n) => a + n.readingMinutes, 0), blurb: s.blurb });
   const libraryItems = [...writing.filter((n) => !n.series), ...series.map(seriesEntry)].sort(byDateDesc);
 
   const rabbitHoles = notes.filter((n) => (n.kind === 'rabbithole' || n.kind === 'exploration') && listed(n));

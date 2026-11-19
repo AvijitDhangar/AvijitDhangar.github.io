@@ -120,3 +120,54 @@ if (footLogo) {
     footLogo.style.setProperty('--logo-rot', `${footRot}deg`);
   });
 }
+
+// Reading progress tracker (floating circular pill)
+const content = $('.prose');
+const pill = $('#reading-pill');
+const ring = $('#ring-fill');
+const pillText = $('#reading-pill-text');
+
+if (content && pill) {
+  const updateProgress = () => {
+    const rect = content.getBoundingClientRect();
+    const windowHeight = window.innerHeight;
+    const contentTop = rect.top + window.scrollY;
+    const contentHeight = rect.height;
+
+    const start = contentTop - 70;
+    const end = contentTop + contentHeight - windowHeight;
+    const current = window.scrollY;
+
+    let progress = 0;
+    if (end > start) {
+      if (current <= start) {
+        progress = 0;
+      } else if (current >= end) {
+        progress = 100;
+      } else {
+        progress = Math.min(100, Math.max(0, Math.round(((current - start) / (end - start)) * 100)));
+      }
+    } else {
+      progress = current > start ? 100 : 0;
+    }
+
+    if (ring && pillText) {
+      ring.style.strokeDashoffset = `${100 - progress}`;
+      pillText.textContent = `${progress}%`;
+    }
+
+    if (current > start + 60) {
+      pill.classList.add('visible');
+    } else {
+      pill.classList.remove('visible');
+    }
+  };
+
+  window.addEventListener('scroll', updateProgress, { passive: true });
+  window.addEventListener('resize', updateProgress, { passive: true });
+  updateProgress();
+
+  pill.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}

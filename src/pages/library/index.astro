@@ -21,7 +21,7 @@ const featuredCover = featured?.cover || (featured?.slug === 'triggered-lives' ?
           <p style="color:var(--ink-soft);margin-bottom:.4rem">Featured · {featured.kind === 'series' ? 'Story' : cap(featured.type)}{featured.date ? ' · ' + fmtDate(featured.date) : ''}</p>
           <h2><a href={featured.url}>{featured.title}</a></h2>
           <p>{featured.description}</p>
-          <a class="btn" href={featured.url}>Read</a>
+          <a class="btn" href={featured.url}>Start reading</a>
         </div>
         {featuredCover ? (
           <div class="featured-cover-container">

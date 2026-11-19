@@ -1,38 +1,64 @@
-// Workshop entries. Edit this file (GitHub's web editor works fine) to add or change projects.
+// Workshop entries.
 // status: 'active' | 'completed' | 'paused' | 'idea'
 export const projects = [
   {
-    title: 'Water Management Analytics Dashboard',
-    description: 'A dashboard that turns water-usage data into something people can act on.',
-    why: 'Because patterns in messy data are only useful once someone can see them.',
-    tech: ['Python', 'Data visualisation'],
-    status: 'completed',
-    link: 'https://github.com/AvijitDhangar',
-    topics: ['Technology & AI'],
-    featured: true,
-  },
-  {
-    title: 'Personal Finance Tracker',
-    description: 'A small tool for tracking spending without a spreadsheet maze.',
-    why: 'A personal system I wanted to exist.',
-    tech: ['Python'],
+    title: 'Keyboard Layout',
+    description: 'An exploration into custom keymaps, ergonomics, and typing efficiency.',
+    why: 'Questioning standard QWERTY defaults to minimize finger travel and fatigue.',
+    tech: ['Python', 'Ergonomics', 'Keymaps'],
     status: 'active',
-    link: 'https://github.com/AvijitDhangar',
+    link: 'https://github.com/Avijit-D/keyboard-layout',
     topics: ['Systems'],
   },
   {
-    title: 'This website',
-    description: 'A digital garden that rebuilds itself whenever I publish from Obsidian.',
-    why: 'To own a home for everything I write and notice.',
-    tech: ['Astro', 'GitHub Pages', 'Obsidian'],
-    status: 'active',
-    link: 'https://github.com/AvijitDhangar',
+    title: 'Testcase Benchmark',
+    description: 'A benchmarking suite for evaluating test generation accuracy and edge-case execution.',
+    why: 'Testing edge-case limits and finding what breaks before hitting production.',
+    tech: ['Python', 'Benchmarking', 'Testing'],
+    status: 'completed',
+    link: 'https://github.com/Avijit-D/testcase-benchmark',
     topics: ['Technology & AI'],
+  },
+  {
+    title: 'UPI Transaction Analyser',
+    description: 'A privacy-first parser and analysis tool for UPI bank statements.',
+    why: 'Visualizing spending habits and cash-flow patterns locally without third-party aggregators.',
+    tech: ['Python', 'Data Analytics', 'Visualization'],
+    status: 'completed',
+    link: 'https://github.com/Avijit-D/upi-transaction-analyser',
+    topics: ['Systems', 'Data Science'],
+  },
+  {
+    title: 'OTD Realtime Visualisation',
+    description: 'A high-frequency real-time telemetry and streaming data visualization interface.',
+    why: 'Turning live streaming data streams into immediate, responsive visual signals.',
+    tech: ['JavaScript', 'Realtime', 'Data Visualization'],
+    status: 'completed',
+    link: 'https://github.com/Avijit-D/otd-realtime-visualisation',
+    article: 'https://medium.com/@avijitdhangar/untitled-document-md-bd5dc0a21b48',
+    topics: ['Technology & AI', 'Data Science'],
+  },
+  {
+    title: 'VelociRead',
+    description: 'A speed-reading application utilizing rapid serial visual presentation (RSVP) pacing.',
+    why: 'Built by vibe-coding the scaffolding to deeply learn and engineer the reading mechanics.',
+    tech: ['JavaScript', 'Frontend', 'Rapid UI'],
+    status: 'completed',
+    link: 'https://github.com/Avijit-D/velociread',
+    article: 'https://medium.com/@avijitdhangar/i-vibe-coded-half-my-app-so-i-could-actually-learn-the-other-half-e6f04dc97582',
+    topics: ['Technology & AI'],
+  },
+  {
+    title: 'Reddit Dashboard',
+    description: 'An interactive analytics dashboard tracking discussions, trends, and subreddit sentiment.',
+    why: 'Moving from uncertainty to discovery by mapping how communities actually communicate.',
+    tech: ['Python', 'Reddit API', 'Analytics', 'Dashboard'],
+    status: 'completed',
+    link: 'https://github.com/Avijit-D/reddit-dashboard',
+    article: 'https://medium.com/@avijitdhangar/from-doubt-to-dashboard-why-building-a-reddit-dashboard-changed-how-i-see-r-c7c6e256ca05',
+    topics: ['Data Science', 'Technology & AI'],
   },
 ];
 
 // Smaller things: experiments, scripts, workflows.
-export const experiments = [
-  { title: 'Windows, tuned', description: 'The set of apps that makes Windows what it should have been.', link: '', topics: ['Systems'] },
-  { title: 'Basic tracing with sock puppets', description: 'First steps in open-source investigation.', link: '', topics: ['OSINT'] },
-];
+export const experiments = [];

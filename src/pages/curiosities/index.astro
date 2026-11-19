@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import Comments from '../../components/Comments.astro';
 import NoteRow from '../../components/NoteRow.astro';
 import SimklShowcase from '../../components/SimklShowcase.astro';
 import { getGarden } from '../../lib/garden.mjs';
@@ -8,7 +9,7 @@ const g = getGarden();
 const shown = g.topics.filter((t) => t.slug !== 'other');
 for (let i = 1; i < shown.length; i++) {
   if (shown[i].hue === shown[i - 1].hue) {
-    const pal = ['#0d9488', '#ea580c', '#6366f1', '#e11d48', '#0284c7', '#d946ef', '#16a34a', '#f59e0b', '#8b5cf6', '#ec4899', '#0891b2'];
+    const pal = ['#1f9d6a', '#f97316', '#3b82f6', '#ec4899', '#f59e0b', '#8b5cf6', '#06b6d4', '#d946ef', '#10b981', '#6366f1', '#14b8a6', '#fb7185'];
     const curIdx = pal.indexOf(shown[i].hue);
     shown[i].hue = pal[(curIdx + 1) % pal.length];
   }
@@ -43,10 +44,11 @@ const past = rabbitHoles.filter((n) => n.status === 'past');
     )}
     {past.length > 0 && (
       <section class="section past">
-        <div class="section-head"><h2>Past rabbit holes</h2><p>Finished with, but never deleted.</p></div>
+        <div class="section-head"><h2>Past rabbit holes</h2><p>Might revisit later.</p></div>
         <ul class="rows">{past.map((n) => <NoteRow item={n} />)}</ul>
       </section>
     )}
     <SimklShowcase />
+    <Comments id="curiosities" title="Curiosities Discussion" description="Thoughts, recommendations, or a rabbit hole I should explore? Leave a note below." />
   </div>
 </Base>
