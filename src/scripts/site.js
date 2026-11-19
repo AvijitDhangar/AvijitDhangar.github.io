@@ -88,3 +88,35 @@ document.querySelectorAll('.prose pre').forEach((pre) => {
   b.addEventListener('click', async () => { try { await navigator.clipboard.writeText(code.innerText); b.textContent = 'Copied'; } catch { b.textContent = 'Press Ctrl+C'; } setTimeout(() => (b.textContent = 'Copy'), 1600); });
   pre.prepend(b);
 });
+
+// ambigram logo 180deg flip on click
+let logoRotation = 0;
+const brand = $('.brand');
+const logoImg = $('.nav-ambigram-logo');
+if (brand && logoImg) {
+  brand.addEventListener('click', (e) => {
+    logoRotation += 180;
+    logoImg.style.setProperty('--logo-rot', `${logoRotation}deg`);
+
+    const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
+    const targetPath = (new URL(brand.href, window.location.origin)).pathname.replace(/\/$/, '') || '/';
+
+    if (currentPath === targetPath) {
+      e.preventDefault();
+    } else {
+      e.preventDefault();
+      setTimeout(() => {
+        window.location.href = brand.href;
+      }, 450);
+    }
+  });
+}
+
+const footLogo = $('.ambigram-logo');
+if (footLogo) {
+  let footRot = 0;
+  footLogo.addEventListener('click', () => {
+    footRot += 180;
+    footLogo.style.setProperty('--logo-rot', `${footRot}deg`);
+  });
+}

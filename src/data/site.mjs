@@ -62,13 +62,15 @@ export const site = {
   ],
   about: {
     paragraphs: [
-      'I have been fascinated by stories ever since I was little. And it manifested as a hobby in writing and a degree in B.Tech. Now it seems like a jump, but if you think about it, Data Science is simply finding stories in numbers — something that agrees with my nature of being scientific in approach but artistic in vision.',
-      'Computer science has taught me a lot, but now I want to move on to bigger, better things....',
+      "I'm Avijit Dhangar, from India.",
+      "I've been fascinated by stories for as long as I can remember. That fascination eventually found its way into writing, while my curiosity about how things work led me to pursue a B.Tech in Computer Science from VIT.",
+      "I'm someone with varied interests, an appreciation for understanding the world around me, and probably more curiosity than I know what to do with.",
+      "This website is my little corner of the internet. A place to put things I've written, made, learned, and found worth sharing.",
     ],
     socialNote: "Sorry I'm not active on social media (essay coming soon about it).",
-    values: 'Understand the system, find the story, tell it well.',
+    values: 'Understand a system, find the story, tell it well.',
     education: 'B.Tech in Computer Science, VIT.',
-    direction: 'Currently learning in public: colour science, OSINT basics, and a slow-burn story about people under pressure.',
+    direction: '',
   },
   comments: {
     enabled: true,

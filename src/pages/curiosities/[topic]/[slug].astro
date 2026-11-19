@@ -3,7 +3,9 @@ import NotePage from '../../../components/NotePage.astro';
 import { getGarden } from '../../../lib/garden.mjs';
 import { withBase } from '../../../lib/url.mjs';
 export function getStaticPaths() {
-  return getGarden().explorations.map((note) => ({ params: { topic: note.topicSlugs[0], slug: note.slug }, props: { note } }));
+  const g = getGarden();
+  const list = g.rabbitHoles || g.explorations;
+  return list.map((note) => ({ params: { topic: note.topicSlugs[0], slug: note.slug }, props: { note } }));
 }
 const { note } = Astro.props;
 ---

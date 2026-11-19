@@ -3,8 +3,10 @@ import { fmtDate, cap } from '../lib/format.mjs';
 import { slugify } from '../lib/garden.mjs';
 import { withBase } from '../lib/url.mjs';
 const { item, topics = true, filter = false } = Astro.props;
-const type = item.kind === 'series' ? 'series' : item.type;
-const label = item.label || (item.kind === 'series' ? 'Story' : cap(item.type));
+const rawType = item.kind === 'series' ? 'series' : item.type;
+const isRabbitHole = rawType === 'exploration' || rawType === 'rabbit-hole' || rawType === 'rabbithole' || rawType === 'rabbit_hole';
+const type = isRabbitHole ? 'rabbit-hole' : rawType;
+const label = item.label || (item.kind === 'series' ? 'Story' : isRabbitHole ? 'Rabbit hole' : cap(item.type));
 const extra = item.kind === 'series' ? `${item.count} parts` : item.readingMinutes ? `${item.readingMinutes} min read` : '';
 ---
 <li class={`row t-${type}`} data-type={filter ? type : undefined} data-topics={filter ? (item.topics || []).map(slugify).join(' ') : undefined} data-text={filter ? `${item.title} ${item.description || ''} ${(item.topics || []).join(' ')}`.toLowerCase() : undefined}>

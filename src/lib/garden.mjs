@@ -24,11 +24,26 @@ const NOTES_DIR = path.join(ROOT, 'content/garden');
 const IMG_DIR = path.join(ROOT, 'public/garden-img');
 const IMG_EXT = /\.(png|jpe?g|gif|webp|avif|svg)$/i;
 const WRITING = ['essay', 'article', 'note', 'reflection', 'guide', 'review', 'story', 'resource', 'resources'];
-const HUE_PALETTE = ['#1f9d6a', '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#06b6d4', '#6366f1', '#d946ef', '#f97316'];
-function getHue(name) {
+const HUE_PALETTE = [
+  '#0d9488', // teal
+  '#ea580c', // orange
+  '#6366f1', // indigo
+  '#e11d48', // rose
+  '#0284c7', // sky
+  '#d946ef', // fuchsia
+  '#16a34a', // emerald
+  '#f59e0b', // amber
+  '#8b5cf6', // violet
+  '#ec4899', // pink
+  '#0891b2', // cyan
+];
+function getHash(name) {
   let hash = 0;
   for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  return HUE_PALETTE[Math.abs(hash) % HUE_PALETTE.length];
+  return hash;
+}
+function getHue(name) {
+  return HUE_PALETTE[Math.abs(getHash(name)) % HUE_PALETTE.length];
 }
 
 export const slugify = (s) =>
@@ -182,15 +197,17 @@ function build() {
   const used = new Set();
   for (const n of notes) {
     const isTopic = n.type === 'topic' || n.type === 'interest';
+    const isRabbitHole = n.type === 'rabbit-hole' || n.type === 'rabbithole' || n.type === 'rabbit_hole' || n.type === 'exploration' || n.tags?.includes('rabbit-hole') || n.tags?.includes('rabbithole') || n.tags?.includes('rabbit_hole') || n.tags?.includes('exploration');
     let base = slugify(n.customSlug ? String(n.customSlug).split('/').filter(Boolean).pop() : (isTopic ? (n.topics[0] || n.title) : n.title));
     if (!base) base = 'note';
-    const scope = isTopic ? 'i:' : n.type === 'exploration' ? 'e:' : 'w:';
+    const scope = isTopic ? 'i:' : isRabbitHole ? 'e:' : 'w:';
     let slug = base, k = 2;
-    if (n.series && !isTopic && n.type !== 'exploration') slug = `${slugify(n.series)}/${base}`;
+    if (n.series && !isTopic && !isRabbitHole) slug = `${slugify(n.series)}/${base}`;
     while (used.has(scope + slug)) slug = `${base}-${k++}`;
     used.add(scope + slug);
     n.slug = slug;
-    n.kind = isTopic ? 'topic' : n.type === 'exploration' ? 'exploration' : 'writing';
+    n.kind = isTopic ? 'topic' : isRabbitHole ? 'rabbithole' : 'writing';
+    if (isRabbitHole) n.type = 'rabbit-hole';
   }
 
   // ---- topics ---------------------------------------------------------------------
@@ -204,10 +221,11 @@ function build() {
   const canon = (t) => canonMap.get(slugify(t)) || String(t).trim();
   for (const n of notes) {
     n.topics = [...new Set(n.topics.map(canon))];
-    if (n.kind === 'exploration' && !n.topics.length) n.topics = ['Other'];
+    const isRabbitHole = n.kind === 'rabbithole' || n.kind === 'exploration';
+    if (isRabbitHole && !n.topics.length) n.topics = ['Other'];
     n.topicSlugs = n.topics.map(slugify);
     n.url = n.kind === 'topic' ? withBase(`curiosities/${slugify(n.topics[0] || n.title)}/`)
-      : n.kind === 'exploration' ? withBase(`curiosities/${n.topicSlugs[0] || 'misc'}/${n.slug}/`)
+      : isRabbitHole ? withBase(`curiosities/${n.topicSlugs[0] || 'misc'}/${n.slug}/`)
       : withBase(`library/${n.slug}/`);
   }
 
@@ -382,7 +400,7 @@ function build() {
     topics: [...new Set(s.notes.flatMap((n) => n.topics))], featured: s.notes.some((n) => n.featured), readingMinutes: s.notes.reduce((a, n) => a + n.readingMinutes, 0) });
   const libraryItems = [...writing.filter((n) => !n.series), ...series.map(seriesEntry)].sort(byDateDesc);
 
-  const explorations = notes.filter((n) => n.kind === 'exploration' && listed(n));
+  const rabbitHoles = notes.filter((n) => (n.kind === 'rabbithole' || n.kind === 'exploration') && listed(n));
   const topicNotes = notes.filter((n) => n.kind === 'topic');
 
   const topicMap = new Map();
@@ -402,9 +420,10 @@ function build() {
       if (t.note.props.hue) t.hue = t.note.props.hue;
       if (t.note.props.topic || t.note.title) t.name = t.note.props.topic || t.note.title;
     }
-    t.explorations = explorations.filter((n) => n.topicSlugs.includes(t.slug));
-    t.current = t.explorations.filter((n) => n.status !== 'past');
-    t.past = t.explorations.filter((n) => n.status === 'past');
+    t.rabbitHoles = rabbitHoles.filter((n) => n.topicSlugs.includes(t.slug));
+    t.explorations = t.rabbitHoles;
+    t.current = t.rabbitHoles.filter((n) => n.status !== 'past');
+    t.past = t.rabbitHoles.filter((n) => n.status === 'past');
     t.guides = libraryItems.filter((n) => (n.type === 'guide' || n.type === 'guides') && n.topics.map(slugify).includes(t.slug));
     t.resources = libraryItems.filter((n) => (n.type === 'resource' || n.type === 'resources') && n.topics.map(slugify).includes(t.slug));
     t.articles = libraryItems.filter((n) => (n.type === 'article' || n.type === 'essay' || n.type === 'story') && n.topics.map(slugify).includes(t.slug));
@@ -414,7 +433,24 @@ function build() {
     t.experiments = experiments.filter((p) => (p.topics || []).map(slugify).includes(t.slug));
   }
   // Only topics with actual published content will have pages and cards
-  const topics = [...topicMap.values()].filter((t) => t.slug !== 'other' && (t.note || t.explorations.length || t.writing.length || t.projects.length || t.experiments.length));
+  const topics = [...topicMap.values()].filter((t) => t.slug !== 'other' && (t.note || t.rabbitHoles.length || t.writing.length || t.projects.length || t.experiments.length));
+
+  // Ensure no two adjacent topic blocks in the grid share the same or clashing hue
+  for (let i = 0; i < topics.length; i++) {
+    const t = topics[i];
+    if (!t.note?.props?.hue) {
+      let idx = (i * 3 + Math.abs(getHash(t.name))) % HUE_PALETTE.length;
+      if (i > 0 && HUE_PALETTE[idx] === topics[i - 1].hue) {
+        idx = (idx + 1) % HUE_PALETTE.length;
+      }
+      t.hue = HUE_PALETTE[idx];
+    } else if (i > 0 && t.hue === topics[i - 1].hue) {
+      const idx = HUE_PALETTE.indexOf(t.hue);
+      if (idx !== -1) {
+        t.hue = HUE_PALETTE[(idx + 1) % HUE_PALETTE.length];
+      }
+    }
+  }
 
   // photos dropped into public/gallery
   const galleryDir = path.join(ROOT, 'public/gallery');
@@ -425,12 +461,12 @@ function build() {
     return { src: withBase('gallery/' + encodeURIComponent(name)), caption: captions[name] || name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ') };
   });
 
-  const current = explorations.filter((n) => n.status === 'current').sort((a, b) => Number(b.featured) - Number(a.featured) || byDateDesc(a, b))[0] || null;
+  const current = rabbitHoles.filter((n) => n.status === 'current').sort((a, b) => Number(b.featured) - Number(a.featured) || byDateDesc(a, b))[0] || null;
 
   const recent = [
     ...libraryItems.map((n) => ({ ...n, label: n.type === 'story' ? 'Story' : n.type.charAt(0).toUpperCase() + n.type.slice(1), url: n.url })),
-    ...explorations.map((n) => ({ ...n, label: 'Exploration' })),
+    ...rabbitHoles.map((n) => ({ ...n, label: 'Rabbit hole' })),
   ].filter((n) => n.date).sort(byDateDesc);
 
-  return { notes, libraryItems, series, explorations, topics, topicMap, photos, current, recent, projects, experiments, warnings: [...new Set(warnings)], byTypeCount: Object.fromEntries(WRITING.map((t) => [t, writing.filter((n) => n.type === t).length])) };
+  return { notes, libraryItems, series, rabbitHoles, explorations: rabbitHoles, topics, topicMap, photos, current, recent, projects, experiments, warnings: [...new Set(warnings)], byTypeCount: Object.fromEntries(WRITING.map((t) => [t, writing.filter((n) => n.type === t).length])) };
 }

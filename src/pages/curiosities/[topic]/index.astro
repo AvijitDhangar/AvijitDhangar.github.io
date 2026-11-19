@@ -22,7 +22,7 @@ const { t } = Astro.props;
 
     {t.current.length > 0 && (
       <section class="section">
-        <h2>Exploring now</h2>
+        <h2>Active rabbit holes</h2>
         <ul class="rows">{t.current.map((n) => <NoteRow item={n} topics={false} />)}</ul>
       </section>
     )}
@@ -57,7 +57,7 @@ const { t } = Astro.props;
 
     {t.past.length > 0 && (
       <section class="section past">
-        <h2>Past explorations</h2>
+        <h2>Past rabbit holes</h2>
         <ul class="rows">{t.past.map((n) => <NoteRow item={n} topics={false} />)}</ul>
       </section>
     )}

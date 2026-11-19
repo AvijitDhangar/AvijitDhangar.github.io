@@ -6,10 +6,18 @@ import { getGarden } from '../../lib/garden.mjs';
 import { withBase } from '../../lib/url.mjs';
 const g = getGarden();
 const shown = g.topics.filter((t) => t.slug !== 'other');
-const current = g.explorations.filter((n) => n.status !== 'past');
-const past = g.explorations.filter((n) => n.status === 'past');
+for (let i = 1; i < shown.length; i++) {
+  if (shown[i].hue === shown[i - 1].hue) {
+    const pal = ['#0d9488', '#ea580c', '#6366f1', '#e11d48', '#0284c7', '#d946ef', '#16a34a', '#f59e0b', '#8b5cf6', '#ec4899', '#0891b2'];
+    const curIdx = pal.indexOf(shown[i].hue);
+    shown[i].hue = pal[(curIdx + 1) % pal.length];
+  }
+}
+const rabbitHoles = g.rabbitHoles || g.explorations;
+const current = rabbitHoles.filter((n) => n.status !== 'past');
+const past = rabbitHoles.filter((n) => n.status === 'past');
 ---
-<Base title="Curiosities" description="Interests, explorations and rabbit holes." place="curiosities">
+<Base title="Curiosities" description="Interests, rabbit holes and curious pursuits." place="curiosities">
   <header class="page-head"><div class="wrap"><h1>Curiosities</h1><p>Subjects I explore because they are interesting, not because they must produce something.</p></div></header>
   <div class="wrap">
     <section class="section" style="padding-top:2rem">
@@ -19,7 +27,7 @@ const past = g.explorations.filter((n) => n.status === 'past');
           {shown.map((t) => (
             <a class="topic" style={`--hue:${t.hue}`} href={withBase(`curiosities/${t.slug}/`)}>
               <h3>{t.name}</h3>
-              <small>{[t.current.length && `${t.current.length} exploring`, t.writing.length && `${t.writing.length} written`].filter(Boolean).join(' · ')}</small>
+              <small>{[t.current.length && `${t.current.length} active`, t.writing.length && `${t.writing.length} written`].filter(Boolean).join(' · ')}</small>
             </a>
           ))}
         </div>
@@ -29,13 +37,13 @@ const past = g.explorations.filter((n) => n.status === 'past');
     </section>
     {current.length > 0 && (
       <section class="section">
-        <div class="section-head"><h2>Current explorations</h2></div>
+        <div class="section-head"><h2>Current rabbit holes</h2></div>
         <ul class="rows">{current.map((n) => <NoteRow item={n} />)}</ul>
       </section>
     )}
     {past.length > 0 && (
       <section class="section past">
-        <div class="section-head"><h2>Past explorations</h2><p>Finished with, but never deleted.</p></div>
+        <div class="section-head"><h2>Past rabbit holes</h2><p>Finished with, but never deleted.</p></div>
         <ul class="rows">{past.map((n) => <NoteRow item={n} />)}</ul>
       </section>
     )}

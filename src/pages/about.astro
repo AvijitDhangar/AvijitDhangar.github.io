@@ -12,23 +12,17 @@ const links = [
   { label: 'Medium', url: site.medium, desc: 'Longform writings & essays' },
 ];
 ---
-<Base title="About" description={site.intro} place="about">
+<Base title="About" description="About Avijit Dhangar" place="about">
   <header class="page-head">
     <div class="wrap">
-      <h1>About</h1>
-      <p>{site.intro}</p>
+      <h1>About Me</h1>
     </div>
   </header>
 
   <div class="narrow" style="margin-top:2.5rem">
     <div class="prose">
       {a.paragraphs.map((p) => <p>{p}</p>)}
-      <p><em>{a.values}</em></p>
-    </div>
-
-    <div class="facts">
-      <div><b>Where I am headed</b>{a.direction}</div>
-      <div><b>Background</b>{a.education}</div>
+      <p class="about-motto"><em>{a.values}</em></p>
     </div>
 
     <section class="touch-section" id="get-in-touch">
@@ -60,6 +54,11 @@ const links = [
 </Base>
 
 <style>
+  .about-motto {
+    margin-top: 2rem;
+    font-size: 1.15em;
+    color: var(--accent);
+  }
   .touch-section {
     margin-top: 4rem;
     padding-top: 2rem;
