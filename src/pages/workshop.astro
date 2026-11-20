@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import Comments from '../components/Comments.astro';
 import { getGarden, slugify } from '../lib/garden.mjs';
+import { liveApps } from '../data/projects.mjs';
 import { withBase } from '../lib/url.mjs';
 
 const g = getGarden();
@@ -30,6 +31,33 @@ const ordered = g.projects;
         </article>
       ))}
     </div>
+
+    {liveApps.length > 0 && (
+      <section class="section" style="margin-top: 3.5rem;">
+        <div class="section-head">
+          <h2>Things you can try</h2>
+          <p>Live interactive apps and tools I've built that you can test right now in your browser.</p>
+        </div>
+        <ul class="rows">
+          {liveApps.map((app) => (
+            <li class="row" style="grid-template-columns: 1fr auto; align-items: center;">
+              <div>
+                <h3>
+                  <a href={app.link} target="_blank" rel="noopener noreferrer">
+                    {app.title} <span style="font-size: 0.85em; opacity: 0.65;">↗</span>
+                  </a>
+                </h3>
+                <p>{app.description}</p>
+              </div>
+              <a class="btn ghost" href={app.link} target="_blank" rel="noopener noreferrer" style="white-space: nowrap; font-size: 0.88rem; padding: 0.45rem 1rem;">
+                Try it live ↗
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+
     {g.experiments.length > 0 && (
       <section class="section">
         <h2>Experiments and small things</h2>

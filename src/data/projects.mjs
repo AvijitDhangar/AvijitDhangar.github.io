@@ -62,3 +62,22 @@ export const projects = [
 
 // Smaller things: experiments, scripts, workflows.
 export const experiments = [];
+
+// Live interactive tools people can try right in the browser
+export const liveApps = [
+  {
+    title: 'KeyFit',
+    description: 'An interactive tool to discover and test ergonomic keyboard layouts tailored to your typing style.',
+    link: 'https://keyfit4u.vercel.app/',
+  },
+  {
+    title: 'RangScience',
+    description: 'An interactive exploration into color theory, contrast ratios, and color science.',
+    link: 'https://rangscience.vercel.app/',
+  },
+  {
+    title: 'VelociReader',
+    description: 'A live speed-reading tool using RSVP pacing to train reading speed and comprehension.',
+    link: 'https://velocireader.vercel.app/',
+  },
+];

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Colour Journey</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#fff;overflow-x:hidden;text-shadow:0 2px 18px rgba(0,0,0,.35)}
+.bg{position:fixed;inset:0;z-index:-1}
+.progress{position:fixed;top:0;left:0;height:3px;width:0;background:#fff;z-index:1001}
+.nav{position:fixed;top:0;left:0;right:0;padding:1.1rem 1.5rem;background:rgba(0,0,0,.25);backdrop-filter:blur(10px);z-index:1000;display:flex;justify-content:space-between;align-items:center;font-size:.9rem}
+.nav a{cursor:pointer;opacity:.85}.nav a:hover{opacity:1}
+.page{display:none}.page.active{display:block}
+section{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:5rem 1.5rem 4rem;position:relative}
+.content{max-width:780px;width:100%;text-align:center;opacity:0;transform:translateY(30px);transition:all .8s ease}
+.content.visible{opacity:1;transform:none}
+h1{font-size:clamp(2.2rem,8vw,4.8rem);font-weight:800;line-height:1.1;margin-bottom:1.2rem}
+h2{font-size:clamp(1.7rem,5vw,2.9rem);font-weight:700;line-height:1.15;margin-bottom:1rem}
+p{font-size:clamp(1.05rem,2.5vw,1.35rem);line-height:1.6;opacity:.95;margin-bottom:1.4rem}
+.note{background:rgba(0,0,0,.22);padding:1rem 1.4rem;border-radius:14px;font-size:1rem;margin:1.5rem auto;max-width:600px;backdrop-filter:blur(6px);line-height:1.55}
+.box{background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:1.8rem;margin:1.5rem auto;max-width:600px;backdrop-filter:blur(10px)}
+.btn{background:#fff;color:#111;text-shadow:none;padding:.9rem 2rem;border:none;border-radius:50px;font-size:1rem;font-weight:600;cursor:pointer;margin:.5rem;transition:transform .2s}
+.btn:hover{transform:translateY(-2px)}
+.btn.ghost{background:rgba(255,255,255,.18);color:#fff;border:1px solid rgba(255,255,255,.4)}
+.btn.sel{background:#fff;color:#111}
+.scroll-ind{position:absolute;bottom:1.5rem;left:50%;font-size:2rem;opacity:.6;animation:bounce 2s infinite}
+@keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(10px)}}
+/* home */
+.hero{text-align:center;padding-top:6rem}
+.hero h1{font-size:clamp(2.8rem,10vw,6rem);font-weight:900}
+.fact{min-height:4.5rem;font-size:clamp(1.05rem,2.6vw,1.4rem);max-width:640px;margin:0 auto 2.5rem;transition:opacity .6s}
+.label{font-size:.8rem;letter-spacing:.2em;text-transform:uppercase;opacity:.7;margin:3rem 0 1.2rem;text-align:center}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.4rem;max-width:1150px;width:100%;margin:0 auto}
+.card{background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:1.8rem;backdrop-filter:blur(10px);cursor:pointer;text-align:left;transition:transform .3s,box-shadow .3s}
+.card:hover{transform:translateY(-8px);box-shadow:0 20px 40px rgba(0,0,0,.3)}
+.card .ic{font-size:2.6rem;margin-bottom:.6rem}
+.card h3{font-size:1.3rem;margin-bottom:.6rem;line-height:1.25}
+.card p{font-size:.95rem;opacity:.85;margin-bottom:1rem}
+.card .meta{font-size:.8rem;opacity:.65}
+.games-card{max-width:1150px;width:100%;margin:0 auto}
+.wrap{padding:0 1.5rem 5rem;display:flex;flex-direction:column;align-items:center}
+/* interactive bits */
+input[type=range]{width:100%;height:8px;border-radius:5px;outline:none;-webkit-appearance:none;margin:.6rem 0 1.2rem}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#fff;cursor:pointer}
+.row{display:flex;justify-content:space-between;font-size:.9rem}
+.swatch{width:180px;height:180px;margin:1rem auto;border-radius:20px;box-shadow:0 20px 50px rgba(0,0,0,.35)}
+.pixels{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;max-width:300px;margin:1.5rem auto}
+.pixels div{aspect-ratio:1;border-radius:2px}
+.cones{display:flex;justify-content:center;gap:2rem;margin:2rem 0;flex-wrap:wrap}
+.cone i{display:block;width:70px;height:105px;margin:0 auto .7rem;border-radius:50% 50% 0 0;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:.8}50%{transform:scale(1.06);opacity:1}}
+.chips{display:flex;flex-wrap:wrap;gap:.6rem;justify-content:center;margin:1rem 0}
+.chip{padding:.5rem 1rem;border-radius:30px;font-weight:600;font-size:.95rem;animation:pop .5s}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+.pal{display:flex;gap:.5rem;justify-content:center;margin:1.2rem 0;flex-wrap:wrap}
+.pal div{width:70px;height:70px;border-radius:14px;box-shadow:0 8px 20px rgba(0,0,0,.3)}
+.stroop-word{font-size:clamp(2.5rem,10vw,4.5rem);font-weight:900;margin:1rem 0;text-shadow:none}
+.flip{background:rgba(0,0,0,.22);border-radius:16px;padding:1.1rem 1.3rem;margin:.7rem 0;text-align:left;cursor:pointer;border:1px solid rgba(255,255,255,.2)}
+.flip b{font-size:1.1rem}
+.flip span{display:none;margin-top:.5rem;font-size:.98rem;line-height:1.5;opacity:.95}
+.flip.open span{display:block}
+.pair{display:flex;gap:1rem;justify-content:center;margin:1.5rem 0}
+.pair div{flex:1;max-width:220px;aspect-ratio:1;border-radius:16px;display:flex;align-items:center;justify-content:center;transition:background .6s}
+.pair i{width:35%;height:35%;background:#808080;display:block}
+.bayer{display:grid;grid-template-columns:repeat(8,1fr);gap:3px;max-width:280px;margin:1.5rem auto}
+.bayer div{aspect-ratio:1;border-radius:3px}
+.counter{font-size:2.6rem;font-weight:800;margin:1rem 0}
+.tl div{background:rgba(0,0,0,.22);padding:1rem 1.3rem;border-radius:12px;margin-bottom:.8rem;text-align:left;font-size:1rem;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="bg" id="bg"></div>
+<div class="progress" id="progress"></div>
+
+<!-- HOME -->
+<div id="home" class="page active">
+  <nav class="nav"><a>The Colour Journey</a><span></span></nav>
+  <section class="hero" style="min-height:70vh">
+    <h1>The Colour Journey</h1>
+    <div class="fact" id="fact"></div>
+    <p style="font-size:1rem;opacity:.7">Pick any journey. Scroll. Be surprised.</p>
+  </section>
+  <div class="wrap">
+    <div class="label">Journeys</div>
+    <div class="cards" id="cards"></div>
+    <div class="label">Playground</div>
+    <div class="games-card">
+      <div class="card" onclick="openPage('games')">
+        <div class="ic">🎮</div>
+        <h3>Test Your Colour IQ</h3>
+        <p>Games, illusions and colour challenges. Opening soon.</p>
+        <div class="meta">Games • Coming soon</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GAMES PLACEHOLDER -->
+<div id="games" class="page">
+  <nav class="nav"><a onclick="goHome()">← Back to Home</a><span>Games</span></nav>
+  <section><div class="content visible">
+    <h1>Games are loading…</h1>
+    <p>Colour-matching, illusion gauntlets and more are on the way.</p>
+    <button class="btn" onclick="goHome()">Back to Journeys</button>
+  </div></section>
+</div>
+
+<!-- JOURNEY CONTAINER -->
+<div id="journey" class="page">
+  <nav class="nav"><a onclick="goHome()">← Back to Home</a><span id="chap"></span></nav>
+  <div id="chapters"></div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const sw=(c)=>`rgb(${c.join(',')})`;
+
+/* ---------- JOURNEYS ---------- */
+const J=[];
+
+/* 1. YELLOW */
+J.push({id:'yellow',icon:'💛',title:'How Your Brain Lies to You About Colour',
+desc:"Yellow doesn't exist on your screen. And your eyes have no yellow detector.",meta:'~5 min • 7 chapters • 🤯 Mind-bending',
+ch:[
+{c:[235,170,0],h:`<h1>Stare at this yellow.</h1><p>Look at it. Really look.</p><div class="scroll-ind">↓</div>`},
+{c:[225,140,20],h:`<h2>Your screen isn't making yellow.</h2><p>It's lying to you.</p>`},
+{c:[40,150,160],h:`<h2>See those dots?</h2><div class="pixels" id="px"></div><p>On most screens, yellow is just red and green pixels side by side.</p><div class="note">No yellow light is being emitted. Your brain fills it in.</div>`,init(){const g=$('px');for(let i=0;i<50;i++){const d=document.createElement('div');d.style.background=i%2?'#0f0':'#f00';g.appendChild(d)}}},
+{c:[90,60,190],h:`<h2>Your eyes have no yellow detector.</h2><div class="cones"><div class="cone"><i style="background:linear-gradient(#4169e1,#00008b)"></i>S cone<br><small>short / blue</small></div><div class="cone"><i style="background:linear-gradient(#3c3,#060)"></i>M cone<br><small>medium / green</small></div><div class="cone"><i style="background:linear-gradient(#f33,#800)"></i>L cone<br><small>long / red</small></div></div><p>Three cone types. Yellow is what your brain decides when L and M fire together.</p>`},
+{c:[190,40,110],h:`<h2>Mix the lights yourself.</h2><div class="box"><div class="swatch" id="ysw" style="background:rgb(255,255,0)"></div><div class="row"><span>Red light</span><span id="yrv">100%</span></div><input type="range" id="yr" value="100" style="background:linear-gradient(90deg,#000,#f00)"><div class="row"><span>Green light</span><span id="ygv">100%</span></div><input type="range" id="yg" value="100" style="background:linear-gradient(90deg,#000,#0f0)"></div><div class="note">Different mixes of light can look identical to you. That's called <b>metamerism</b>.</div>`,init(){const u=()=>{const r=yr.value,g=yg.value;$('ysw').style.background=`rgb(${r*2.55|0},${g*2.55|0},0)`;$('yrv').textContent=r+'%';$('ygv').textContent=g+'%'};yr.oninput=yg.oninput=u}},
+{c:[25,40,70],h:`<h2>Some colours can't be seen.</h2><p>Not "can't be displayed". Can't be perceived.</p><div class="note">Opponent-process vision means red and green never appear together, nor blue and yellow. Lab experiments claim some people briefly saw "reddish-green" and "yellowish-blue".</div><p>Your brain has rules about what's allowed.</p>`},
+{c:[15,15,25],h:`<h1>Reality is negotiable.</h1><p style="font-size:1.25rem">Your brain decides what you see.</p><p>Yellow isn't in the pixels. You see it anyway.</p><button class="btn" onclick="goHome()">More Journeys</button>`}
+]});
+
+/* 2. PURPLE */
+J.push({id:'purple',icon:'💜',title:'Blood, Money, and the Quest for Purple',
+desc:'Thousands of snails per gram. Laws about who could wear it. And a teenager who accidentally ended it.',meta:'~5 min • 6 chapters • 📜 Historical',
+ch:[
+{c:[130,40,200],h:`<h1>Purple once cost more than gold.</h1><p>Not a metaphor. A price tag.</p><div class="scroll-ind">↓</div>`},
+{c:[110,30,160],h:`<h2>About 12,000 snails.</h2><p>For roughly 1.4 grams of Tyrian purple dye.</p><div class="counter">🐚 × 12,000</div><div class="note">Murex sea snails were harvested, cracked open and left to ferment for days. The smell was famously terrible.</div>`},
+{c:[85,10,120],h:`<h2>Born in the purple.</h2><p>Roman and Byzantine rulers restricted who could wear it.</p><div class="tl box"><div>Sumptuary laws limited purple to emperors and high officials.</div><div>Byzantine heirs were called <i>porphyrogenitus</i>: "born in the purple room".</div><div>That's why "born to the purple" still means royal birth.</div></div>`},
+{c:[50,90,210],h:`<h2>Then came ultramarine.</h2><p>Lapis lazuli from the mountains of Afghanistan, shipped to Europe. The name means "beyond the sea".</p><div class="note">Renaissance contracts sometimes specified exactly how much ultramarine a painter had to use, because it cost more than many other pigments.</div>`},
+{c:[10,60,140],h:`<h2>Vermeer and the blue.</h2><p>He used natural ultramarine lavishly, and died in debt in 1675.</p><div class="note">Historians blame the war with France for most of his money troubles, but his expensive pigments didn't help.</div>`},
+{c:[25,20,70],h:`<h2>Then a teenager changed everything.</h2><div class="tl box"><div><b>1820s:</b> Chemists made synthetic ultramarine. Blue got cheap.</div><div><b>1856:</b> 18-year-old William Perkin tried to make quinine and accidentally made <b>mauve</b>, the first synthetic dye.</div><div>Purple went from royal to everyone.</div></div><button class="btn" onclick="goHome()">More Journeys</button>`}
+]});
+
+/* 3. CULTURE */
+J.push({id:'culture',icon:'🌍',title:'Why Blue Means Mourning in Iran',
+desc:'Wear white to the wrong event and become the story. Plus: languages with no word for blue.',meta:'~4 min • 5 chapters • 🌍 Cultural',
+ch:[
+{c:[220,90,60],h:`<h1>Wear white to a wedding in the West.</h1><p>Wear it to a funeral in much of East Asia.</p><div class="scroll-ind">↓</div>`},
+{c:[200,60,100],h:`<h2>Tap a colour.</h2>
+<div class="flip"><b>🔴 Red</b><span>Luck and celebration in China. Stop and danger in much of the West.</span></div>
+<div class="flip"><b>⚪ White</b><span>Weddings and purity in Western tradition. Mourning in China and parts of East Asia.</span></div>
+<div class="flip"><b>🔵 Blue</b><span>Trust and calm in the West. Traditionally a colour of mourning in Iran.</span></div>
+<div class="flip"><b>🟣 Purple</b><span>Royalty in Europe. Associated with mourning in Thailand and parts of Brazil.</span></div>
+<div class="note">Traditions vary a lot within each country. These are tendencies, not rules.</div>`,init(){document.querySelectorAll('.flip').forEach(f=>f.onclick=()=>f.classList.toggle('open'))}},
+{c:[80,60,180],h:`<h2>The wine-dark sea.</h2><p>Homer describes the sea as "wine-dark" and rarely uses a word for blue.</p><div class="note">Russian has two basic blues (<i>siniy</i> and <i>goluboy</i>). Japanese <i>ao</i> traditionally covers both blue and green. Where a language draws the line changes how people talk about colour.</div>`},
+{c:[20,120,150],h:`<h2>Languages grow colours in order.</h2><p>Berlin and Kay found that colour words tend to arrive in a similar sequence.</p><div class="box"><div class="chips" id="ev"></div><button class="btn" id="evb">Evolve the language ➜</button></div><div class="note">It's a strong tendency with exceptions and ongoing debate.</div>`,init(){
+const st=[[['dark','#222'],['light','#eee']],[['red','#d22']],[['green','#2a2'],['yellow','#eb0']],[['blue','#27d']],[['brown','#753']],[['purple','#92c'],['pink','#f8a'],['orange','#f80'],['grey','#888']]];
+let i=0;const ev=$('ev'),b=$('evb');
+const add=()=>{if(i>=st.length){b.textContent='Fully evolved ✓';return}st[i].forEach(([n,c])=>{const s=document.createElement('span');s.className='chip';s.style.background=c;s.style.color=['light','yellow','pink'].includes(n)?'#111':'#fff';s.style.textShadow='none';s.textContent=n;ev.appendChild(s)});i++;if(i>=st.length)b.textContent='Fully evolved ✓'};
+b.onclick=add;add()}},
+{c:[15,25,50],h:`<h1>Colour is half biology, half culture.</h1><p>Same eyes. Different stories.</p><button class="btn" onclick="goHome()">More Journeys</button>`}
+]});
+
+/* 4. TECH */
+J.push({id:'tech',icon:'💻',title:'Your Screen Is Gaslighting You',
+desc:'Cameras that are colourblind, screens that cannot show every colour, and a very green sensor.',meta:'~4 min • 5 chapters • 💻 Technical',
+ch:[
+{c:[20,40,120],h:`<h1>Every screen is a trick.</h1><p>Three tiny lights. That's all it takes to convince you.</p><div class="scroll-ind">↓</div>`},
+{c:[10,130,140],h:`<h2>Be the screen.</h2><p>Mix red, green and blue light.</p><div class="box"><div class="swatch" id="tsw"></div><b id="thex" style="font-size:1.3rem;text-shadow:none"></b><div style="margin-top:1rem"><input type="range" id="tr" max="255" value="255" style="background:linear-gradient(90deg,#000,#f00)"><input type="range" id="tg" max="255" value="120" style="background:linear-gradient(90deg,#000,#0f0)"><input type="range" id="tb" max="255" value="40" style="background:linear-gradient(90deg,#000,#00f)"></div></div><div class="note">Every colour on your screen is just three numbers from 0 to 255.</div>`,init(){const u=()=>{const r=+tr.value,g=+tg.value,b=+tb.value;$('tsw').style.background=`rgb(${r},${g},${b})`;$('thex').textContent='#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('').toUpperCase()};tr.oninput=tg.oninput=tb.oninput=u;u()}},
+{c:[100,50,170],h:`<h2>Your camera is colourblind.</h2><p>Each sensor pixel sits behind one coloured filter. It only measures brightness.</p><div class="bayer" id="bay"></div><div class="note">Half the pixels are green, a quarter each red and blue. Software guesses the missing colours. This is called demosaicing.</div>`,init(){const g=$('bay');const m={0:'#e33',1:'#3c3',2:'#3c3',3:'#36e'};for(let y=0;y<8;y++)for(let x=0;x<8;x++){const d=document.createElement('div');d.style.background=y%2===0?(x%2?'#3c3':'#e33'):(x%2?'#36e':'#3c3');g.appendChild(d)}}},
+{c:[170,40,90],h:`<h2>Colours your screen can't show.</h2><p>Every screen has a gamut: the range of colours it can display.</p><div class="note">Lasers and some newer displays can show more saturated greens and reds than a typical screen. I'd show you one, but your screen can't. That's the point.</div>`},
+{c:[15,15,30],h:`<h1>The future is more colourful.</h1><p>OLED, quantum dots and HDR keep pushing the edges.</p><button class="btn" onclick="goHome()">More Journeys</button>`}
+]});
+
+/* 5. PSYCHOLOGY */
+J.push({id:'psych',icon:'🧠',title:'How Colours Hack Your Brain',
+desc:'A test you will fail, a pink room, and why red and yellow rule fast food.',meta:'~4 min • 5 chapters • 🧠 Psychological',
+ch:[
+{c:[210,50,60],h:`<h1>Colours don't just look like things.</h1><p>They nudge you. Slightly. Constantly.</p><div class="scroll-ind">↓</div>`},
+{c:[200,110,30],h:`<h2>The Stroop test.</h2><p>Tap the <b>ink colour</b>, not the word.</p><div class="box"><div class="stroop-word" id="sw"></div><div id="sb"></div><p style="margin:1rem 0 0;font-size:1rem" id="ss">Score: 0 / 0</p></div><div class="note">Reading is automatic, so the word fights the colour.</div>`,init(){
+const C=[['RED','#e22'],['BLUE','#36f'],['GREEN','#2b3'],['YELLOW','#eb0']];let ok=0,n=0,cur;
+const nx=()=>{const w=C[Math.random()*4|0];let c;do{c=C[Math.random()*4|0]}while(c===w&&Math.random()<.8);cur=c;const e=$('sw');e.textContent=w[0];e.style.color=c[1]};
+$('sb').innerHTML='';C.forEach(c=>{const b=document.createElement('button');b.className='btn';b.textContent=c[0];b.style.background=c[1];b.style.color='#fff';b.onclick=()=>{n++;if(c===cur)ok++;$('ss').textContent=`Score: ${ok} / ${n}`;nx()};$('sb').appendChild(b)});nx()}},
+{c:[210,130,20],h:`<h2>Red and yellow, everywhere.</h2><p>Many fast-food brands use them. Red and yellow are bright and easy to spot.</p><div class="note">Do they make you hungry? The evidence is weak. They definitely get noticed from a car window.</div>`},
+{c:[230,130,170],h:`<h2>The pink room.</h2><p>In the late 1970s, a Seattle naval brig painted a holding cell a shade called Baker-Miller pink to calm inmates.</p><div class="note">Early reports said it worked. Later studies have been mixed, and any effect seems short-lived.</div>`},
+{c:[30,60,160],h:`<h2>Why is blue so popular?</h2><p>Surveys across many countries often rank blue as a favourite.</p><div class="note">One idea, the Ecological Valence Theory, says we like colours of things we like: clear water, open sky.</div><button class="btn" onclick="goHome()">More Journeys</button>`}
+]});
+
+/* 6. THEORY */
+J.push({id:'theory',icon:'🎨',title:'The Secret Language of Colour',
+desc:'The colour wheel is a useful lie, plus a grey square that is secretly the same grey.',meta:'~4 min • 5 chapters • 🎨 Artistic',
+ch:[
+{c:[240,100,50],h:`<h1>Colour has grammar.</h1><p>Once you know the rules, you can break them on purpose.</p><div class="scroll-ind">↓</div>`},
+{c:[60,160,90],h:`<h2>The colour wheel is a useful lie.</h2><p>Artists learned red, yellow and blue as primaries. Printers use cyan, magenta and yellow. Screens use red, green and blue.</p><div class="note">All three work in their own world. None is "the" truth.</div>`},
+{c:[40,100,200],h:`<h2>Build a palette.</h2><div class="box"><div class="pal" id="pal"></div><input type="range" id="hue" max="359" value="200" style="background:linear-gradient(90deg,red,yellow,lime,cyan,blue,magenta,red)"><div class="chips" id="hm"></div></div>`,init(){
+const M={Complementary:[0,180],Analogous:[-30,0,30],Triadic:[0,120,240],Tetradic:[0,90,180,270]};let cur='Triadic';
+const draw=()=>{const h=+hue.value;$('pal').innerHTML=M[cur].map(o=>`<div style="background:hsl(${(h+o+360)%360},70%,55%)"></div>`).join('')};
+Object.keys(M).forEach(k=>{const b=document.createElement('button');b.className='btn ghost'+(k===cur?' sel':'');b.textContent=k;b.onclick=()=>{cur=k;document.querySelectorAll('#hm .btn').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');draw()};$('hm').appendChild(b)});
+hue.oninput=draw;draw()}},
+{c:[120,60,150],h:`<h2>Same grey. Different grey.</h2><p>The small squares are identical.</p><div class="pair" id="pr"><div style="background:#222"><i></i></div><div style="background:#ddd"><i></i></div></div><button class="btn" id="pb">Reveal</button>`,init(){let s=false;$('pb').onclick=()=>{s=!s;const d=$('pr').children;d[0].style.background=s?'#808080':'#222';d[1].style.background=s?'#808080':'#ddd';$('pb').textContent=s?'Bring the backgrounds back':'Reveal'}}},
+{c:[20,20,40],h:`<h1>Colour is relative.</h1><p>Nothing looks the way it does without its neighbours.</p><button class="btn" onclick="goHome()">More Journeys</button>`}
+]});
+
+/* ---------- HOME ---------- */
+$('cards').innerHTML=J.map(j=>`<div class="card" onclick="loadJourney('${j.id}')"><div class="ic">${j.icon}</div><h3>${j.title}</h3><p>${j.desc}</p><div class="meta">${j.meta}</div></div>`).join('');
+const facts=["Your screen has no yellow pixels. Red and green light fool your brain.","Mantis shrimp have 12 to 16 types of colour photoreceptors. You have 3.","Pink isn't a single wavelength of light. Your brain mixes it.","Purple dye once took thousands of snails per gram.","Pantone 448C was chosen as an unappealing colour for Australian cigarette packs.","Most blue animals aren't blue pigment. It's tiny structures bending light."];
+let fi=0;const fe=$('fact');
+const showFact=()=>{fe.style.opacity=0;setTimeout(()=>{fe.textContent=facts[fi++%facts.length];fe.style.opacity=1},500)};
+showFact();setInterval(showFact,6000);
+
+/* ---------- NAVIGATION ---------- */
+let mode='home',cur=null,pal=[];
+function show(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));$(id).classList.add('active');window.scrollTo(0,0)}
+function goHome(){mode='home';show('home');$('progress').style.width=0}
+function openPage(id){mode='static';show(id);$('progress').style.width=0}
+let io;
+function loadJourney(id){
+  cur=J.find(j=>j.id===id);mode='journey';
+  $('chapters').innerHTML=cur.ch.map(c=>`<section><div class="content">${c.h}</div></section>`).join('');
+  show('journey');
+  cur.ch.forEach(c=>c.init&&c.init());
+  if(io)io.disconnect();
+  io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')}),{threshold:.2});
+  document.querySelectorAll('#chapters .content').forEach(c=>io.observe(c));
+  $('chap').textContent=`Chapter 1 of ${cur.ch.length}`;
+}
+
+/* ---------- CONTINUOUS BACKGROUND ---------- */
+const lerp=(a,b,t)=>a+(b-a)*t;
+function frame(t){
+  let base,second,angle=135+25*Math.sin(t/5000);
+  if(mode==='journey'&&cur){
+    const secs=document.querySelectorAll('#chapters section');
+    const mid=window.scrollY+innerHeight/2;
+    const cs=[...secs].map(s=>s.offsetTop+s.offsetHeight/2);
+    let i=0;while(i<cs.length-1&&mid>cs[i+1])i++;
+    const j=Math.min(i+1,cs.length-1);
+    let f=j===i?0:(mid-cs[i])/(cs[j]-cs[i]);f=Math.max(0,Math.min(1,f));
+    const A=cur.ch[i].c,B=cur.ch[j].c;
+    base=A.map((v,k)=>lerp(v,B[k],f));
+    const w=Math.sin(t/3000)*28;
+    second=base.map((v,k)=>Math.max(0,Math.min(255,v*.6+(k===0?w:k===2?-w:0)+20)));
+    const idx=Math.round(i+f);
+    $('chap').textContent=`Chapter ${idx+1} of ${cur.ch.length}`;
+    const dh=document.documentElement.scrollHeight-innerHeight;
+    $('progress').style.width=(dh>0?scrollY/dh*100:0)+'%';
+    $('bg').style.background=`linear-gradient(${angle}deg, ${sw(base.map(Math.round))}, ${sw(second.map(Math.round))})`;
+  }else{
+    const h=(t/50)%360;
+    $('bg').style.background=`linear-gradient(${angle}deg, hsl(${h},65%,42%), hsl(${(h+70)%360},70%,28%))`;
+  }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
