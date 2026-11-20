@@ -7,7 +7,7 @@ import { cap, fmtDate } from '../../lib/format.mjs';
 import { withBase } from '../../lib/url.mjs';
 const g = getGarden();
 const items = g.libraryItems;
-const featured = items.find((i) => i.featured) || items[0];
+const featured = items.find((i) => i.featured) || items.find((i) => i.slug === 'triggered-lives') || items[0];
 const types = [...new Set(items.map((i) => (i.kind === 'series' ? 'series' : i.type)))];
 const topics = [...new Set(items.flatMap((i) => i.topics))];
 const featuredCover = featured?.cover || (featured?.slug === 'triggered-lives' ? withBase('covers/triggered-lives.png') : null);

@@ -59,12 +59,20 @@ const asArray = (v) => v == null || v === '' ? [] : Array.isArray(v) ? v.filter(
 
 const asBool = (v) => v === true || v === 'true';
 
-// \( \) and \[ \] -> $ and $$ for remark-math; strip %% comments %%
+// \( \) and \[ \] -> $ and $$ for remark-math; strip %% comments %%; resolve external [[url|alias]] wikilinks
 function preprocess(src) {
   return src.split(/(```[\s\S]*?```)/g).map((part, i) => i % 2 ? part : part
     .replace(/%%[\s\S]*?%%/g, '')
     .replace(/\\\[([\s\S]+?)\\\]/g, (_, m) => `\n$$\n${m.trim()}\n$$\n`)
-    .replace(/\\\((.+?)\\\)/g, (_, m) => `$${m}$`)).join('');
+    .replace(/\\\((.+?)\\\)/g, (_, m) => `$${m}$`)
+    .replace(/\[\[\[((?:https?|mailto|ftp):\/\/[^\s|\]\\]+)(?:\\?\|([^\]]*?))?\]\([^)]+\)([^\]]*?)\]\]/g, (_, url, a1, rest) => {
+      const alias = ((a1 || '') + (rest || '')).trim() || url;
+      return `[${alias}](${url})`;
+    })
+    .replace(/\[\[((?:https?|mailto|ftp):\/\/[^\s|\]\\]+)(?:\\?\|([^\]\n]+))?\]\]/g, (_, url, alias) => {
+      const label = (alias ? alias.trim() : '') || url;
+      return `[${label}](${url})`;
+    })).join('');
 }
 
 const CALLOUT_CLASS = {
@@ -177,12 +185,17 @@ function build() {
     const date = parseDateTag(props, tags, body, m.added);
 
     const noteTopics = asArray(props.topics ?? props.topic ?? (type === 'topic' ? title : null));
+    const hasFeaturedTag = tags.some((t) => {
+      const s = String(t).trim().toLowerCase();
+      return s === 'featured' || s === 'featured:true' || s === 'featured/true' || s === '#featured' || /^featured[:=]/i.test(s);
+    });
+    const isFeatured = asBool(props.featured) || hasFeaturedTag;
 
     notes.push({
       id, title, body, props, tags, type, series, order,
       topics: noteTopics,
       status: String(props.status || '').toLowerCase(),
-      featured: asBool(props.featured),
+      featured: isFeatured,
       description: props.description ? String(props.description) : '',
       date: date,
       dateTag: date,
@@ -275,7 +288,7 @@ function build() {
         while ((m = re.exec(node.value))) {
           if (m.index > last) out.push({ type: 'text', value: node.value.slice(last, m.index) });
           last = m.index + m[0].length;
-          const [targetPart, ...aliasParts] = m[2].split('|');
+          const [targetPart, ...aliasParts] = m[2].replace(/\\\|/g, '|').split('|');
           const alias = aliasParts.join('|').trim();
           const [name, heading] = targetPart.split('#');
           if (m[1] && IMG_EXT.test(name.trim())) {
@@ -283,6 +296,22 @@ function build() {
             const width = /^\d+$/.test(alias) ? Number(alias) : undefined;
             if (src) out.push({ type: 'image', url: src, alt: alias && !width ? alias : path.basename(name.trim()), data: { hProperties: { loading: 'lazy', ...(width ? { width } : {}) } } });
             else { state.missingImages.push(name.trim()); out.push({ type: 'emphasis', data: { hName: 'span', hProperties: { className: ['missing-image'] } }, children: [{ type: 'text', value: `image not available: ${path.basename(name.trim())}` }] }); }
+            continue;
+          }
+          if (/^(https?|mailto|ftp):\/\//i.test(name.trim())) {
+            const display = alias || name.trim();
+            out.push({
+              type: 'link',
+              url: name.trim() + (heading ? '#' + slugify(heading) : ''),
+              children: [{ type: 'text', value: display }],
+              data: {
+                hProperties: {
+                  className: ['external-link'],
+                  target: '_blank',
+                  rel: 'noopener noreferrer'
+                }
+              }
+            });
             continue;
           }
           const target = name.trim() ? resolve(name, note) : note;
@@ -308,6 +337,13 @@ function build() {
         if (img.url && !img.url.startsWith('http://') && !img.url.startsWith('https://') && !img.url.startsWith('/') && !img.url.startsWith('data:')) {
           const resolved = findImage(img.url);
           if (resolved) img.url = resolved;
+        }
+      });
+      // external links: target="_blank"
+      visit(tree, 'link', (link) => {
+        if (link.url && /^(https?:)?\/\//i.test(link.url)) {
+          link.data = link.data || {};
+          link.data.hProperties = { ...(link.data.hProperties || {}), target: '_blank', rel: 'noopener noreferrer' };
         }
       });
       // headings, excerpt, plain text
@@ -407,7 +443,7 @@ function build() {
   const seriesEntry = (s) => ({ kind: 'series', title: s.title, slug: s.slug, url: withBase(`series/${s.slug}/`), type: 'story', count: s.notes.length,
     cover: s.slug === 'triggered-lives' ? withBase('covers/triggered-lives.png') : null,
     description: s.blurb?.excerpt || s.notes[0]?.excerpt || '', date: s.notes.map((n) => n.date).filter(Boolean).sort().pop() || null,
-    topics: [...new Set(s.notes.flatMap((n) => n.topics))], featured: s.notes.some((n) => n.featured), readingMinutes: s.notes.reduce((a, n) => a + n.readingMinutes, 0), blurb: s.blurb });
+    topics: [...new Set(s.notes.flatMap((n) => n.topics))], featured: s.notes.some((n) => n.featured) || asBool(s.blurb?.featured) || asBool(s.index?.featured), readingMinutes: s.notes.reduce((a, n) => a + n.readingMinutes, 0), blurb: s.blurb });
   const libraryItems = [...writing.filter((n) => !n.series), ...series.map(seriesEntry)].sort(byDateDesc);
 
   const rabbitHoles = notes.filter((n) => (n.kind === 'rabbithole' || n.kind === 'exploration') && listed(n));

@@ -1,17 +1,18 @@
 ---
-import { getSimklData, formatWatchedDate } from '../lib/simkl.mjs';
+import { getSimklData } from '../lib/simkl.mjs';
 
 const simkl = await getSimklData();
-const { recentlyWatched, favorites, isLive, hasCredentials, profileUrl } = simkl;
+const { favorites, isLive, hasCredentials, profileUrl } = simkl;
 ---
 
 <div class="simkl-container">
-  <!-- 1. Recently Watched Section -->
-  <section class="section" id="recently-watched">
+  <!-- All-Time Favorites Section (10/10 Ratings) -->
+  <section class="section" id="all-time-favorites">
     <div class="section-head">
       <div>
         <div class="simkl-heading-wrap">
-          <h2>Recently Watched</h2>
+          <h2>All-Time Favorites</h2>
+          <span class="simkl-score-badge">★ 10/10 Rated</span>
           {isLive ? (
             <span class="simkl-live-pill" title="Connected to live Simkl feed">
               <span class="live-dot"></span> Live Simkl
@@ -19,61 +20,6 @@ const { recentlyWatched, favorites, isLive, hasCredentials, profileUrl } = simkl
           ) : (
             <span class="simkl-sync-pill">Curated List</span>
           )}
-        </div>
-        <p>Movies, series, and anime logged from my watchlist.</p>
-      </div>
-      <a class="link-arrow" href={profileUrl} target="_blank" rel="noopener noreferrer">
-        Full Simkl Profile ↗
-      </a>
-    </div>
-
-    {recentlyWatched.length > 0 ? (
-      <div class="simkl-grid">
-        {recentlyWatched.map((item) => (
-          <a class="simkl-card" href={item.url} target="_blank" rel="noopener noreferrer">
-            <div class="simkl-poster-wrap">
-              {item.poster ? (
-                <img
-                  src={item.poster}
-                  alt={`${item.title} Poster`}
-                  class="simkl-poster"
-                  loading="lazy"
-                />
-              ) : (
-                <div class="simkl-poster-fallback">
-                  <span>{item.title}</span>
-                </div>
-              )}
-              <div class="simkl-badges">
-                <span class={`simkl-badge cat-${item.category}`}>
-                  {item.categoryLabel}
-                </span>
-                {item.watchedAt && (
-                  <span class="simkl-badge time">
-                    {formatWatchedDate(item.watchedAt)}
-                  </span>
-                )}
-              </div>
-            </div>
-            <div class="simkl-info">
-              <h4 class="simkl-title" title={item.title}>{item.title}</h4>
-              <p class="simkl-meta">{item.year || item.categoryLabel}</p>
-            </div>
-          </a>
-        ))}
-      </div>
-    ) : (
-      <p class="empty-note">No recently watched items found.</p>
-    )}
-  </section>
-
-  <!-- 2. All-Time Favorites Section (10/10 Ratings) -->
-  <section class="section" id="all-time-favorites">
-    <div class="section-head">
-      <div>
-        <div class="simkl-heading-wrap">
-          <h2>All-Time Favorites</h2>
-          <span class="simkl-score-badge">★ 10/10 Rated</span>
         </div>
         <p>Stories, films, and worlds that left an indelible mark.</p>
       </div>
@@ -204,11 +150,6 @@ const { recentlyWatched, favorites, isLive, hasCredentials, profileUrl } = simkl
       const anime = Array.isArray(data.anime) ? data.anime.map((a) => normalize(a, 'anime')) : [];
       const all = [...movies, ...shows, ...anime];
 
-      const recent = all
-        .filter((x) => Boolean(x.watchedAt))
-        .sort((a, b) => new Date(b.watchedAt).getTime() - new Date(a.watchedAt).getTime())
-        .slice(0, 10);
-
       const faves = all
         .filter((x) => x.rating === 10)
         .slice(0, 12);
@@ -232,10 +173,7 @@ const { recentlyWatched, favorites, isLive, hasCredentials, profileUrl } = simkl
         `).join('');
       };
 
-      const recentGrid = document.querySelector('#recently-watched .simkl-grid');
       const favesGrid = document.querySelector('#all-time-favorites .simkl-grid');
-
-      if (recent.length && recentGrid) renderGrid(recentGrid, recent, false);
       if (faves.length && favesGrid) renderGrid(favesGrid, faves, true);
     } catch (e) {
       console.warn('Simkl browser sync error:', e);
